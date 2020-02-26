@@ -55,17 +55,17 @@ public class Main {
             }
         }
         // validate expression
-        if (!input.matches("/.*")) {
+        if (!input.matches("/.*")) {}
             //if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]\\s*(\\d|[a-zA-Z])+(\\s+[+-]\\s+(\\d|[a-zA-Z])+)*)")
             //        && !input.matches("[a-zA-z]+\\s*(=\\s*([0-9 ]+|[a-zA-z]))*")){
             //        && !input.matches("^$")) {
-            if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]+\\s*(\\d|[a-zA-Z])+(\\s+[+-]+\\s+(\\d|[a-zA-Z])+)*)")
+          /*  if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]+\\s*(\\d|[a-zA-Z])+(\\s+[+-]+\\s+(\\d|[a-zA-Z])+)*)")
                     && !input.matches("[a-zA-z]+\\s*(=\\s*([0-9 ]+|[a-zA-z]))*")
                     && !input.matches("^$")) {
                 System.out.println("Invalid expression");
                 return false;
             }
-        }
+        }*/
         return true;
     }
 
@@ -77,7 +77,11 @@ public class Main {
         if (input.contains("=")) {
             assign(input);
         } else {
-            sum(input);
+            //sum(input);
+            List<String> res = convertToRPN(input);
+            res.forEach(el->System.out.print(el + " "));
+            System.out.println(" ");
+
         }
     }
     public static List<String> convertToRPN(String input){
@@ -101,43 +105,59 @@ public class Main {
                     int topStackOpPrior = getOpPriority(topStackOp);
                     if(topStackOp.equals("(")) {                         // 2
                         opStack.offerFirst(tokens[i]);
-                    } else if(curOpPrior > topStackOpPrior) {       // 3
-                        opStack.offerFirst(tokens[i]);
-                    } else if(curOpPrior <= topStackOpPrior) {      // 4
-                        opStack.pollFirst();
-                        rpn.add(topStackOp);
-                        while(true) {
-                            if(opStack.isEmpty())  // ???
-                                break;              // incorrect expression
-                            topStackOp = opStack.peekFirst();
-                            topStackOpPrior = getOpPriority(topStackOp);
-                            if(topStackOp.equals("(") || curOpPrior > topStackOpPrior){
-                                opStack.offerFirst(tokens[i]);
-                                break;
-                            }else if(curOpPrior <= topStackOpPrior){
-                                rpn.add(topStackOp);
-                                opStack.pollFirst();
-                            }
-                        }
                     } else if(tokens[i].equals("(")) {      //5
                         opStack.offerFirst(tokens[i]);
                     } else if(tokens[i].equals(")")) {      //6
                         while(true){
+                            // add check for (
                             rpn.add(topStackOp);
+                            opStack.pollFirst();
                             if(opStack.isEmpty())
                                 // something go wrong
+                                // can't find '('
                                 break;
                             else
                             {
                                 topStackOp = opStack.pollFirst();
-                                if(topStackOp.equals("("))
-                                    break;
+                                if(topStackOp.equals("(")) {
+                                    if(opStack.isEmpty())
+                                        break;
+                                }
                                 else
                                     rpn.add(topStackOp);
                             }
                         }
                     }
+                    else if(curOpPrior > topStackOpPrior) {       // 3
+                        opStack.offerFirst(tokens[i]);
+                    }  else if(curOpPrior <= topStackOpPrior) {      // 4
+                        opStack.pollFirst();
+                        rpn.add(topStackOp);
+                        while (true) {
 
+                            if (opStack.isEmpty())  // ???
+                            {
+                                //rpn.add(tokens[i]);
+                                opStack.offerFirst(tokens[i]);
+                                break;              // incorrect expression
+                            }
+                            topStackOp = opStack.peekFirst();
+                            topStackOpPrior = getOpPriority(topStackOp);
+                            if (topStackOp.equals("(") || curOpPrior > topStackOpPrior) {
+                                if(topStackOp.equals("(")){
+                                    opStack.pollFirst();
+                                } else if (curOpPrior > topStackOpPrior) {
+                                    opStack.offerFirst(tokens[i]);
+                                }
+                                break;
+
+                                ///####break;
+                            } else if (curOpPrior <= topStackOpPrior) {
+                                rpn.add(topStackOp);
+                                opStack.pollFirst();
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -147,14 +167,14 @@ public class Main {
         }
 
 
-        return res;
+        return rpn;
 
     }
     public static boolean isOperand(String token) {
         return token.matches("(\\d|[a-zA-Z])+");
     }
     public static boolean isOperator(String token) {
-        return token.matches("[*+-/]");
+        return token.matches("[*+-/()]");
     }
 
 
