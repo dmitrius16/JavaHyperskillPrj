@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class Main {
-    private static LinkedHashMap<String, Integer> variables = new LinkedHashMap<>();
+    static LinkedHashMap<String, Integer> variables = new LinkedHashMap<>();
+    static List<String> rpn = new ArrayList<>();
+    static Deque<String> opStack = new ArrayDeque<>();
+    static Deque<Integer> calcStack = new ArrayDeque<>();
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -55,7 +58,8 @@ public class Main {
             }
         }
         // validate expression
-        if (!input.matches("/.*")) {}
+
+
             //if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]\\s*(\\d|[a-zA-Z])+(\\s+[+-]\\s+(\\d|[a-zA-Z])+)*)")
             //        && !input.matches("[a-zA-z]+\\s*(=\\s*([0-9 ]+|[a-zA-z]))*")){
             //        && !input.matches("^$")) {
@@ -78,85 +82,101 @@ public class Main {
             assign(input);
         } else {
             //sum(input);
+
+
+            resetResult();
+            input = prepareExpression(input);
             List<String> res = convertToRPN(input);
             res.forEach(el->System.out.print(el + " "));
             System.out.println(" ");
+            System.out.println(calcRPN());
 
         }
     }
-    public static List<String> convertToRPN(String input){
-        List<String> rpn = new ArrayList<>();
-        Deque<String> opStack = new ArrayDeque<>();
-        //
-        //prepare input for rpn
-        //
+
+    public static int calcRPN() {
+        for(String token : rpn) {
+            if(isOperand(token)) {
+                calcStack.offerFirst(Integer.parseInt(token));
+            } else {
+                int op2 = calcStack.pollFirst();
+                int op1 = calcStack.pollFirst();
+                switch(token){
+                    case "+":
+                        op1 = op1 + op2;
+                        break;
+                    case "-":
+                        op1 = op1 - op2;
+                        break;
+                    case "*":
+                        op1 = op1 * op2;
+                        break;
+                    case "/":
+                        op1 = op1 / op2;
+                        break;
+                    case "^":
+                        int res = 1;
+                        for(int i = 0; i < op2;i++){
+                            res *= op1;
+                        }
+                        op1 = res;
+                        break;
+                }
+                calcStack.offerFirst(op1);
+            }
+        }
+        return calcStack.pollLast();
+    }
+    private static String prepareExpression(String input){
+        input = input.replaceAll("-{2}","+")
+        .replaceAll("\\+{2,}","+")
+        .replaceAll("\\s+","")
+        .replaceAll("((?!\\d)|(?<!\\d))"," ")
+        .replaceAll("\\( -\\s+","( -")
+        .replaceAll("\\( +\\s+","( +").trim()
+        .replaceFirst("^\\-\\s","\\-")
+        .replaceFirst("^\\+\\s","\\-");
+        return input;
+    }
+    private static List<String> convertToRPN(String input) {
         String[] tokens = input.split("\\s+");  // naive method
 
         for(int i = 0; i < tokens.length; i++) {
             if(isOperand(tokens[i])) {
-                rpn.add(tokens[i]);
+                String value = tokens[i];
+                if(tokens[i].matches("[a-zA-Z]+"))
+                {
+                    if(variables.containsKey(value))
+                        value = String.valueOf(variables.get(value));
+                    else{
+                        System.out.println("Unknown variable");
+                        //ToDO set global error !!!
+                        break;
+                    }
+                }
+                rpn.add(value);
             } else if(isOperator(tokens[i])) {
                 if(opStack.isEmpty())
                 {
-                    opStack.offerFirst(tokens[i]);
+                    opStack.offerFirst(tokens[i]);                      // 1
                 } else {
                     String topStackOp = opStack.peekFirst();
-                    int curOpPrior = getOpPriority(tokens[i]);
+                    String curOp = tokens[i];
+
+                    int curOpPrior = getOpPriority(curOp);
                     int topStackOpPrior = getOpPriority(topStackOp);
-                    if(topStackOp.equals("(")) {                         // 2
-                        opStack.offerFirst(tokens[i]);
-                    } else if(tokens[i].equals("(")) {      //5
-                        opStack.offerFirst(tokens[i]);
-                    } else if(tokens[i].equals(")")) {      //6
-                        while(true){
-                            // add check for (
-                            rpn.add(topStackOp);
-                            opStack.pollFirst();
-                            if(opStack.isEmpty())
-                                // something go wrong
-                                // can't find '('
-                                break;
-                            else
-                            {
-                                topStackOp = opStack.pollFirst();
-                                if(topStackOp.equals("(")) {
-                                    if(opStack.isEmpty())
-                                        break;
-                                }
-                                else
-                                    rpn.add(topStackOp);
-                            }
-                        }
+
+                    if(topStackOp.equals("(")) {        // 2
+                        opStack.offerFirst(curOp);
+                    } else if(curOp.equals("(")) {      //5
+                        opStack.offerFirst(curOp);
+                    } else if(curOp.equals(")")) {      //6
+                        rightParenthisHandler();
                     }
                     else if(curOpPrior > topStackOpPrior) {       // 3
-                        opStack.offerFirst(tokens[i]);
+                        opStack.offerFirst(curOp);
                     }  else if(curOpPrior <= topStackOpPrior) {      // 4
-                        opStack.pollFirst();
-                        rpn.add(topStackOp);
-                        while (true) {
-
-                            if (opStack.isEmpty())  // ???
-                            {
-                                //rpn.add(tokens[i]);
-                                opStack.offerFirst(tokens[i]);
-                                break;              // incorrect expression
-                            }
-                            topStackOp = opStack.peekFirst();
-                            topStackOpPrior = getOpPriority(topStackOp);
-                            if (topStackOp.equals("(") || curOpPrior > topStackOpPrior) {
-                                if(topStackOp.equals("(")){
-                                    opStack.pollFirst();
-                                } else if (curOpPrior > topStackOpPrior) {
-                                    opStack.offerFirst(tokens[i]);
-                                }
-                                break;
-
-                                ///####break;
-                            } else if (curOpPrior <= topStackOpPrior) {
-                                rpn.add(topStackOp);
-                                opStack.pollFirst();
-                            }
-                        }
+                        priorityCurOpLessTopStackHandler(topStackOpPrior,curOpPrior,curOp);
                     }
                 }
             }
@@ -165,16 +185,48 @@ public class Main {
         while(!opStack.isEmpty()){              // 7
             rpn.add(opStack.pollFirst());
         }
-
-
         return rpn;
-
     }
+    private static void rightParenthisHandler() {
+        while(!opStack.isEmpty()){
+            String topStack = opStack.pollFirst();
+            if(topStack.equals("(")){
+                break;
+            } else {
+                rpn.add(topStack);
+            }
+        }
+    }
+
+    private static void priorityCurOpLessTopStackHandler(int topStackPrior,int curOpPrior,String curOp) {
+        while(curOpPrior <= topStackPrior){
+            String topStackOp = opStack.pollFirst();
+            if(!topStackOp.equals("(")) {
+                rpn.add(topStackOp);
+            }
+            if(opStack.isEmpty() || topStackOp.equals("(")) {
+                opStack.offerFirst(curOp);
+                break;
+            } else {
+                topStackOp = opStack.peekFirst();
+                topStackPrior = getOpPriority(topStackOp);
+            }
+        }
+    }
+    private static void resetResult() {
+        opStack.clear();
+        calcStack.clear();
+        rpn.clear();
+    }
+
     public static boolean isOperand(String token) {
         return token.matches("(\\d|[a-zA-Z])+");
     }
+
+
+
     public static boolean isOperator(String token) {
-        return token.matches("[*+-/()]");
+        return token.matches("[*+-^/()]");
     }
 
 
@@ -199,7 +251,7 @@ public class Main {
         }
         return priority;
     }
-
+/*
     public static void sum(String input) {
         int result = 0;
         String[] numbers = input
@@ -225,7 +277,7 @@ public class Main {
         }
         System.out.println(result);
     }
-
+*/
     public static void assign(String input) {
         String[] variableAndValue = input
                 .replaceAll("\\+|--", "")
