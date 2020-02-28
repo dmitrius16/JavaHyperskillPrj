@@ -77,27 +77,39 @@ public class Main {
         if (input.contains("=")) {
             assign(input);
         } else {
-            //sum(input);
-
-
             resetResult();
             input = prepareExpression(input);
-            if(state == CalcState.NO_ERR) {
+            if(!isErrorOccur()){
                 convertToRPN(input);
-                if (state == CalcState.NO_ERR) {
-                    ///###res.forEach(el -> System.out.print(el + " "));
-                    ///###System.out.println(" ");
-                    int result = calcRPN();
-                    if (state == CalcState.NO_ERR)
+                if(!isErrorOccur()){
+                    int result =  calcRPN();
+                    if(!isErrorOccur()){
                         System.out.println(result);
-                } else {
-                    System.out.println("Invalid expression");
+                    }
                 }
             }
+            if(isErrorOccur())
+                OutputError();
+        }
+    }
+    private static boolean isErrorOccur()
+    {
+        return state != CalcState.NO_ERR;
+    }
+
+    private static void OutputError()
+    {
+        switch(state){
+            case UNBALANCED_PARENTHESE_ERR:
+            case INVALID_EXPRESSION_ERR:
+                System.out.println("Invalid expression");
+                break;
+            case UNKNOWN_VAR_ERR:
+                System.out.println("Unknown variable");
         }
     }
 
-    public static int calcRPN() {
+    private static int calcRPN() {
         for(String token : rpn) {
             if(isOperand(token)) {
                 calcStack.offerFirst(Integer.parseInt(token));
@@ -129,7 +141,7 @@ public class Main {
                     calcStack.offerFirst(op1);
                 } else if(calcStack.isEmpty()) {
                     state = CalcState.INVALID_EXPRESSION_ERR;
-                    System.out.println("Invalid expression");
+                    break;
                 }
             }
         }
@@ -149,7 +161,6 @@ public class Main {
         Matcher matcher = pattern.matcher(input);
         if(matcher.find()) {
             state = CalcState.INVALID_EXPRESSION_ERR;
-            System.out.println("Invalid expression");
         }
         return input;
     }
@@ -164,7 +175,6 @@ public class Main {
                     if(variables.containsKey(value))
                         value = String.valueOf(variables.get(value));
                     else{
-                        System.out.println("Unknown variable");
                         state = CalcState.UNKNOWN_VAR_ERR;
                         break;
                     }
@@ -181,9 +191,8 @@ public class Main {
                     int curOpPrior = getOpPriority(curOp);
                     int topStackOpPrior = getOpPriority(topStackOp);
 
-                    if(topStackOp.equals("(")) {        // 2
-                        opStack.offerFirst(curOp);
-                    } else if(curOp.equals("(")) {      //5
+
+                    if(topStackOp.equals("(") || curOp.equals("(")) {        // 2  //5
                         opStack.offerFirst(curOp);
                     } else if(curOp.equals(")")) {      //6
                         if(!rightParenthisHandler())
@@ -192,7 +201,7 @@ public class Main {
                     else if(curOpPrior > topStackOpPrior) {       // 3
                         opStack.offerFirst(curOp);
                     }  else if(curOpPrior <= topStackOpPrior) {      // 4
-                        priorityCurOpLessTopStackHandler(topStackOpPrior,curOpPrior,curOp);
+                        priorityCurOpLessTopStackHandler(topStackOpPrior,curOpPrior,topStackOp,curOp);
                     }
                 }
             }
@@ -203,7 +212,6 @@ public class Main {
                 String token = opStack.pollFirst();
                 if(token.equals("(") || token.equals(")")) {
                     state = CalcState.UNBALANCED_PARENTHESE_ERR;
-                    System.out.println("Invalid expression");
                     break;
                 } else {
                     rpn.add(token);
@@ -228,19 +236,27 @@ public class Main {
         return findLeftParenthesis;
     }
 
-    private static void priorityCurOpLessTopStackHandler(int topStackPrior,int curOpPrior,String curOp) {
+    private static void priorityCurOpLessTopStackHandler(int topStackPrior,int curOpPrior,String topStackOp,String curOp) {
+        boolean putOpOnstack = false;
         while(curOpPrior <= topStackPrior){
-            String topStackOp = opStack.pollFirst();
-            if(!topStackOp.equals("(")) {
-                rpn.add(topStackOp);
-            }
-            if(opStack.isEmpty() || topStackOp.equals("(")) {
+            if(opStack.isEmpty() || topStackOp.equals("(")){
                 opStack.offerFirst(curOp);
+                putOpOnstack = true;
                 break;
             } else {
+
+                if( !topStackOp.equals("(") ) {
+                    rpn.add(topStackOp);
+                }
+                opStack.pollFirst();
+                if(opStack.isEmpty())
+                    break;
                 topStackOp = opStack.peekFirst();
                 topStackPrior = getOpPriority(topStackOp);
             }
+        }
+        if(!putOpOnstack){
+            opStack.offerFirst(curOp);
         }
     }
     private static void resetResult() {
