@@ -6,12 +6,21 @@ import java.util.Deque;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+enum CalcState{
+    NO_ERR,
+    UNKNOWN_VAR_ERR,
+    UNBALANCED_PARENTHESE_ERR,
+    INVALID_EXPRESSION_ERR
+}
 public class Main {
     static LinkedHashMap<String, Integer> variables = new LinkedHashMap<>();
     static List<String> rpn = new ArrayList<>();
     static Deque<String> opStack = new ArrayDeque<>();
     static Deque<Integer> calcStack = new ArrayDeque<>();
+    static CalcState state;
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
@@ -57,24 +66,11 @@ public class Main {
                 return false;
             }
         }
-        // validate expression
-
-
-            //if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]\\s*(\\d|[a-zA-Z])+(\\s+[+-]\\s+(\\d|[a-zA-Z])+)*)")
-            //        && !input.matches("[a-zA-z]+\\s*(=\\s*([0-9 ]+|[a-zA-z]))*")){
-            //        && !input.matches("^$")) {
-          /*  if (!input.matches("(((\\d|[a-zA-Z])+ )*[+-]+\\s*(\\d|[a-zA-Z])+(\\s+[+-]+\\s+(\\d|[a-zA-Z])+)*)")
-                    && !input.matches("[a-zA-z]+\\s*(=\\s*([0-9 ]+|[a-zA-z]))*")
-                    && !input.matches("^$")) {
-                System.out.println("Invalid expression");
-                return false;
-            }
-        }*/
         return true;
     }
 
     public static void showHelp() {
-        System.out.println("The program calculates the sum of numbers");
+        System.out.println("The Smart calculator program. Supports +,-,*,/ and even ^ operations");
     }
 
     public static void determineAction(String input) {
@@ -86,11 +82,18 @@ public class Main {
 
             resetResult();
             input = prepareExpression(input);
-            List<String> res = convertToRPN(input);
-            res.forEach(el->System.out.print(el + " "));
-            System.out.println(" ");
-            System.out.println(calcRPN());
-
+            if(state == CalcState.NO_ERR) {
+                convertToRPN(input);
+                if (state == CalcState.NO_ERR) {
+                    ///###res.forEach(el -> System.out.print(el + " "));
+                    ///###System.out.println(" ");
+                    int result = calcRPN();
+                    if (state == CalcState.NO_ERR)
+                        System.out.println(result);
+                } else {
+                    System.out.println("Invalid expression");
+                }
+            }
         }
     }
 
@@ -99,33 +102,38 @@ public class Main {
             if(isOperand(token)) {
                 calcStack.offerFirst(Integer.parseInt(token));
             } else {
-                int op2 = calcStack.pollFirst();
-                int op1 = calcStack.pollFirst();
-                switch(token){
-                    case "+":
-                        op1 = op1 + op2;
-                        break;
-                    case "-":
-                        op1 = op1 - op2;
-                        break;
-                    case "*":
-                        op1 = op1 * op2;
-                        break;
-                    case "/":
-                        op1 = op1 / op2;
-                        break;
-                    case "^":
-                        int res = 1;
-                        for(int i = 0; i < op2;i++){
-                            res *= op1;
-                        }
-                        op1 = res;
-                        break;
+                if(calcStack.size() >= 2) {
+                    int op2 = calcStack.pollFirst();
+                    int op1 = calcStack.pollFirst();
+                    switch (token) {
+                        case "+":
+                            op1 = op1 + op2;
+                            break;
+                        case "-":
+                            op1 = op1 - op2;
+                            break;
+                        case "*":
+                            op1 = op1 * op2;
+                            break;
+                        case "/":
+                            op1 = op1 / op2;
+                            break;
+                        case "^":
+                            int res = 1;
+                            for (int i = 0; i < op2; i++) {
+                                res *= op1;
+                            }
+                            op1 = res;
+                            break;
+                    }
+                    calcStack.offerFirst(op1);
+                } else if(calcStack.isEmpty()) {
+                    state = CalcState.INVALID_EXPRESSION_ERR;
+                    System.out.println("Invalid expression");
                 }
-                calcStack.offerFirst(op1);
             }
         }
-        return calcStack.pollLast();
+        return state == CalcState.NO_ERR ? calcStack.pollFirst() : 0;
     }
     private static String prepareExpression(String input){
         input = input.replaceAll("-{2}","+")
@@ -136,9 +144,16 @@ public class Main {
         .replaceAll("\\( +\\s+","( +").trim()
         .replaceFirst("^\\-\\s","\\-")
         .replaceFirst("^\\+\\s","\\-");
+
+        Pattern pattern = Pattern.compile( "((\\*\\s){2,})|((/\\s){2,})" );
+        Matcher matcher = pattern.matcher(input);
+        if(matcher.find()) {
+            state = CalcState.INVALID_EXPRESSION_ERR;
+            System.out.println("Invalid expression");
+        }
         return input;
     }
-    private static List<String> convertToRPN(String input) {
+    private static void convertToRPN(String input) {
         String[] tokens = input.split("\\s+");  // naive method
 
         for(int i = 0; i < tokens.length; i++) {
@@ -150,7 +165,7 @@ public class Main {
                         value = String.valueOf(variables.get(value));
                     else{
                         System.out.println("Unknown variable");
-                        //ToDO set global error !!!
+                        state = CalcState.UNKNOWN_VAR_ERR;
                         break;
                     }
                 }
@@ -171,7 +186,8 @@ public class Main {
                     } else if(curOp.equals("(")) {      //5
                         opStack.offerFirst(curOp);
                     } else if(curOp.equals(")")) {      //6
-                        rightParenthisHandler();
+                        if(!rightParenthisHandler())
+                            break;
                     }
                     else if(curOpPrior > topStackOpPrior) {       // 3
                         opStack.offerFirst(curOp);
@@ -182,20 +198,34 @@ public class Main {
             }
         }
         // flush stack
-        while(!opStack.isEmpty()){              // 7
-            rpn.add(opStack.pollFirst());
+        if(state == CalcState.NO_ERR) {
+            while (!opStack.isEmpty()) {              // 7
+                String token = opStack.pollFirst();
+                if(token.equals("(") || token.equals(")")) {
+                    state = CalcState.UNBALANCED_PARENTHESE_ERR;
+                    System.out.println("Invalid expression");
+                    break;
+                } else {
+                    rpn.add(token);
+                }
+            }
         }
-        return rpn;
+     ///   return rpn;
     }
-    private static void rightParenthisHandler() {
+    private static boolean rightParenthisHandler() {
+        boolean findLeftParenthesis = false;
         while(!opStack.isEmpty()){
             String topStack = opStack.pollFirst();
             if(topStack.equals("(")){
+                findLeftParenthesis = true;
                 break;
             } else {
                 rpn.add(topStack);
             }
         }
+        if(!findLeftParenthesis)
+            state = CalcState.UNBALANCED_PARENTHESE_ERR;
+        return findLeftParenthesis;
     }
 
     private static void priorityCurOpLessTopStackHandler(int topStackPrior,int curOpPrior,String curOp) {
@@ -214,13 +244,14 @@ public class Main {
         }
     }
     private static void resetResult() {
+        state = CalcState.NO_ERR;
         opStack.clear();
         calcStack.clear();
         rpn.clear();
     }
 
     public static boolean isOperand(String token) {
-        return token.matches("(\\d|[a-zA-Z])+");
+        return token.matches("([\\+\\-]?\\d|[a-zA-Z])+");
     }
 
 
@@ -251,33 +282,7 @@ public class Main {
         }
         return priority;
     }
-/*
-    public static void sum(String input) {
-        int result = 0;
-        String[] numbers = input
-                .replaceAll("\\+|--", "")
-                .replaceAll("\\s+", " ")
-                .replaceAll("-\\s", "-")
-                .split(" ");
-        for (String n : numbers) {
-            int nValue;
-            if (n.matches("-?\\d+")) {
-                nValue = Integer.parseInt(n);
-            } else {
-                String variable = n.replaceAll("-", "");
-                if (variables.containsKey(variable)) {
-                    nValue = n.matches("-[a-zA-Z]+")
-                            ? -(variables.get(variable)) : variables.get(variable);
-                } else {
-                    System.out.println("Unknown variable");
-                    return;
-                }
-            }
-            result += nValue;
-        }
-        System.out.println(result);
-    }
-*/
+
     public static void assign(String input) {
         String[] variableAndValue = input
                 .replaceAll("\\+|--", "")
