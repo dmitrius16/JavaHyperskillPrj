@@ -8,18 +8,19 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.math.BigInteger;
 
 enum CalcState{
     NO_ERR,
     UNKNOWN_VAR_ERR,
-    UNBALANCED_PARENTHESE_ERR,
+    UNBALANCED_PARENTHESES_ERR,
     INVALID_EXPRESSION_ERR
 }
 public class Main {
-    static LinkedHashMap<String, Integer> variables = new LinkedHashMap<>();
+    static LinkedHashMap<String, BigInteger> variables = new LinkedHashMap<>();
     static List<String> rpn = new ArrayList<>();
     static Deque<String> opStack = new ArrayDeque<>();
-    static Deque<Integer> calcStack = new ArrayDeque<>();
+    static Deque<BigInteger> calcStack = new ArrayDeque<>();
     static CalcState state;
     public static void main(String[] args) {
 
@@ -82,7 +83,7 @@ public class Main {
             if(!isErrorOccur()){
                 convertToRPN(input);
                 if(!isErrorOccur()){
-                    int result =  calcRPN();
+                    BigInteger result =  calcRPN();
                     if(!isErrorOccur()){
                         System.out.println(result);
                     }
@@ -109,33 +110,29 @@ public class Main {
         }
     }
 
-    private static int calcRPN() {
+    private static BigInteger calcRPN() {
         for(String token : rpn) {
             if(isOperand(token)) {
-                calcStack.offerFirst(Integer.parseInt(token));
+                calcStack.offerFirst(new BigInteger(token));
             } else {
                 if(calcStack.size() >= 2) {
-                    int op2 = calcStack.pollFirst();
-                    int op1 = calcStack.pollFirst();
+                    BigInteger op2 = calcStack.pollFirst();
+                    BigInteger op1 = calcStack.pollFirst();
                     switch (token) {
                         case "+":
-                            op1 = op1 + op2;
+                            op1 = op1.add(op2);
                             break;
                         case "-":
-                            op1 = op1 - op2;
+                            op1 = op1.subtract(op2);
                             break;
                         case "*":
-                            op1 = op1 * op2;
+                            op1 = op1.multiply(op2);
                             break;
                         case "/":
-                            op1 = op1 / op2;
+                            op1 = op1.divide(op2);
                             break;
                         case "^":
-                            int res = 1;
-                            for (int i = 0; i < op2; i++) {
-                                res *= op1;
-                            }
-                            op1 = res;
+                            op1 = op1.pow(op2.intValue());
                             break;
                     }
                     calcStack.offerFirst(op1);
@@ -145,7 +142,7 @@ public class Main {
                 }
             }
         }
-        return state == CalcState.NO_ERR ? calcStack.pollFirst() : 0;
+        return state == CalcState.NO_ERR ? calcStack.pollFirst() : BigInteger.ZERO;
     }
     private static String prepareExpression(String input){
         input = input.replaceAll("-{2}","+")
@@ -211,7 +208,7 @@ public class Main {
             while (!opStack.isEmpty()) {              // 7
                 String token = opStack.pollFirst();
                 if(token.equals("(") || token.equals(")")) {
-                    state = CalcState.UNBALANCED_PARENTHESE_ERR;
+                    state = CalcState.UNBALANCED_PARENTHESES_ERR;
                     break;
                 } else {
                     rpn.add(token);
@@ -305,7 +302,7 @@ public class Main {
                 .replaceAll("\\s", "")
                 .split("=");
         if (variableAndValue[1].matches("-?\\d+")) {
-            variables.put(variableAndValue[0], Integer.parseInt(variableAndValue[1]));
+            variables.put(variableAndValue[0],new BigInteger(variableAndValue[1]));
         } else {
             if (variables.containsKey(variableAndValue[1])) {
                 variables.put(variableAndValue[0], variables.get(variableAndValue[1]));
