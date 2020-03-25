@@ -1,5 +1,7 @@
 package readability;
 import java.io.*;
+import java.util.Set;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
@@ -15,10 +17,11 @@ public class Main {
                     while((temp = inp.readLine()) != null) {
                         resStr = String.join("",temp);
                     }
-                    TextMetrics textMetr = new TextMetrics(resStr);
+                    TextMetrics textMetr = new TextMetrics();
+                    textMetr.setText(resStr);
                     textMetr.printTextParameters();
-
-
+                    String method = chooseCalcMethod(inp,textMetr);
+                    System.out.println(textMetr.getScoreResults(method));
                 } catch(IOException ex) {
                     System.out.println("Cannot read file: " + args[0]);
                 }
@@ -26,9 +29,10 @@ public class Main {
         }
     }
 
-    public static void chooseCalcMethod(TextMetrics txtMetrics) {
+    public static String chooseCalcMethod(BufferedReader input, TextMetrics txtMetrics) throws IOException {
         System.out.println("Enter the score you want to calculate (" + TextMetrics.getSupportedCalcMethods() + "):");
-
+        String usrInp = input.readLine();
+        return usrInp;
     }
 
     public static String handleResult(int averLen) {
@@ -40,27 +44,50 @@ class TextMetrics {
     private int characters;
     private int words;
     private int sentences;
-    private double score;
+    private int syllables;
+    private int polysyllables;
+ ///###   private double score;
     private String text;
-    private static BaseReadabilityScore[] scoreMethodicks = {new AutomatedReadabilityScore(),
-                                                             new FleschKincaidScore(),
-                                                             new SMOGScore(),
-                                                             new ColemanLiauScore()};
+ ///###   private String curCalcMethod;
+    Map<String, BaseReadabilityScore> scoreMethodics = Map.of("ARI",new AutomatedReadabilityScore(),
+                                                        "FK", new FleschKincaidScore(),
+                                                        "SMOG", new SMOGScore(),
+                                                        "CL", new ColemanLiauScore());
     private static String calcMethods = "ARI, FK, SMOG, CL, all";
-    public TextMetrics(String text) {
-        this.text = text;
-        calcWords(text);
-        calcSentences(text);
-        score = CalcScore();
-    }
-    /*
+
+    public static String getSupportedCalcMethods() { return calcMethods;}
+
+    public TextMetrics() {}
+
     public int getCntCharacters(){return this.characters;}
     public  int getCntWords(){return this.words;}
     public int getCntSentences(){return this.sentences;}
-    public double getScore(){return this.score;}
+    public int getCntSyllables(){return this.syllables;}
+    public int getCntPolySyllables(){return this.polysyllables;}
+ ///###   public double getScore(){return this.score;}
     public String getText(){return this.text;}
-    */
-    public static String getSupportedCalcMethods() {return calcMethods;};
+
+    public void setText(String text) {
+        this.text = text;
+        for (Map.Entry<String, BaseReadabilityScore> el : scoreMethodics.entrySet()) {
+            BaseReadabilityScore method = el.getValue();
+            method.calcScore(this);
+        }
+    }
+
+    public String getScoreResults(String methodName) {
+        Set<String> calcMethods = scoreMethodics.keySet();
+        String res="";
+        if(calcMethods.contains(methodName)) {
+            BaseReadabilityScore method = scoreMethodics.get(methodName);
+            res = String.format("%s: %.2f (about %s year olds).",method.getName(),method.getScore(),method.getAgeUpperBound() );
+        } else if (methodName.equals("all")) {
+
+        } else
+            System.out.println("Unsuppoorted calc mehod");
+        return res;
+    }
+
     public void printTextParameters() {
         System.out.println("The text is:");
         System.out.print(text);
@@ -70,8 +97,10 @@ class TextMetrics {
         System.out.printf("Characters: %d\n", characters);
         //TODO
         // print Syllables
-        // print Pulysyllables
+        // print Polysyllables
     }
+
+  //  public
 
     private int calcWords(String text) {
         String[] words = text.split("[\\s+]");
@@ -101,23 +130,33 @@ class TextMetrics {
         this.characters = cnt;
         return cnt;
     }
-
+/*
     private double CalcScore() {
         double result = 4.71 * ((double)this.characters / (double)this.words) +
-                0.5 * ((double)this.words/(double)this.sentences) - 21.43;
+                0.5 * ((double)this.words / (double)this.sentences) - 21.43;
         return result;
     }
+ */
+
 }
 
 abstract class BaseReadabilityScore {
     private String name;
-    private double score;
+    protected double score;
     public BaseReadabilityScore(String name) {
         this.name = name;
         this.score = 0.;
     }
-    public abstract double calcScore();
-    String getName(){return this.name;}
+    public abstract double calcScore(TextMetrics textStat); // TODO make return type void
+    public String getName() {return this.name;}
+    public double getScore() {return this.score;}
+    public String getAgeUpperBound() {
+        String res = getAge();
+        int indUpper = res.indexOf('-');
+        if(indUpper != -1)
+            return res.substring(indUpper + 1);
+        return res;
+    }
     public String getAge() {
         int intScore = (int)(Math.ceil(score));
         String temp;
@@ -177,8 +216,11 @@ class AutomatedReadabilityScore extends BaseReadabilityScore {
         super("Automated readability index");
     }
     @Override
-    public double calcScore() {
-        return 0.0;
+    public double calcScore(TextMetrics textStat) {
+        double res = 4.71 * ((double)textStat.getCntCharacters() / (double)textStat.getCntWords()) +
+                0.5 * ((double)textStat.getCntWords() / (double)textStat.getCntSentences()) - 21.43;
+        score = res;
+        return res;
     }
 }
 
@@ -188,8 +230,11 @@ class FleschKincaidScore extends  BaseReadabilityScore {
     }
 
     @Override
-    public double calcScore() {
-        return 0;
+    public double calcScore(TextMetrics textStat) {
+        double res = 0.39 * textStat.getCntWords() / textStat.getCntSentences() +
+                    11.8 * textStat.getCntSyllables() / textStat.getCntWords() - 15.59;
+        score = res;
+        return res;
     }
 }
 
@@ -199,19 +244,32 @@ class SMOGScore extends BaseReadabilityScore {
     }
 
     @Override
-    public double calcScore() {
-        return 0;
+    public double calcScore(TextMetrics textStat) {
+        double res = 1.043 * Math.sqrt(30. * textStat.getCntPolySyllables() / textStat.getCntSentences()) + 3.1291;
+        score = res;
+        return res;
     }
 }
 
 class ColemanLiauScore extends BaseReadabilityScore {
+    private double getAverCharsPer100Words(TextMetrics textStat) {
+        return 0.0;
+    }
+
+    private double getAverSentencePer100Words(TextMetrics textStat) {
+        return 0.0;
+    }
+
     public ColemanLiauScore() {
         super("Coleman-Liau index");
     }
 
     @Override
-    public double calcScore() {
-        return 0;
+    public double calcScore(TextMetrics textStat) {
+        double L = getAverCharsPer100Words(textStat);
+        double S = getAverSentencePer100Words(textStat);
+        double res = 0.0588 * L - 0.296 * S - 15.8;
+        return res;
     }
 }
 
