@@ -20,7 +20,7 @@ public class Main {
                     TextMetrics textMetr = new TextMetrics();
                     textMetr.setText(resStr);
                     textMetr.printTextParameters();
-                    String method = chooseCalcMethod(inp,textMetr);
+                    String method = chooseCalcMethod(textMetr);
                     System.out.println(textMetr.getScoreResults(method));
                 } catch(IOException ex) {
                     System.out.println("Cannot read file: " + args[0]);
@@ -29,10 +29,11 @@ public class Main {
         }
     }
 
-    public static String chooseCalcMethod(BufferedReader input, TextMetrics txtMetrics) throws IOException {
+    public static String chooseCalcMethod(TextMetrics txtMetrics) throws IOException {
+        Scanner usrInp = new Scanner(System.in);
         System.out.println("Enter the score you want to calculate (" + TextMetrics.getSupportedCalcMethods() + "):");
-        String usrInp = input.readLine();
-        return usrInp;
+        String res = usrInp.nextLine();
+        return res;
     }
 
     public static String handleResult(int averLen) {
@@ -49,13 +50,19 @@ class TextMetrics {
  ///###   private double score;
     private String text;
  ///###   private String curCalcMethod;
-    Map<String, BaseReadabilityScore> scoreMethodics = Map.of("ARI",new AutomatedReadabilityScore(),
-                                                        "FK", new FleschKincaidScore(),
-                                                        "SMOG", new SMOGScore(),
-                                                        "CL", new ColemanLiauScore());
-    private static String calcMethods = "ARI, FK, SMOG, CL, all";
 
-    public static String getSupportedCalcMethods() { return calcMethods;}
+    private static String calcMethodsNames[] = {"ARI", "FK", "SMOG", "CL"};
+    private Map<String, BaseReadabilityScore> scoreMethodics = Map.of(calcMethodsNames[0],new AutomatedReadabilityScore(),
+            calcMethodsNames[1], new FleschKincaidScore(),
+            calcMethodsNames[2], new SMOGScore(),
+            calcMethodsNames[3], new ColemanLiauScore());
+
+    public static String getSupportedCalcMethods()
+    {
+        String res = String.join(", ",calcMethodsNames);
+        res += ", all";
+        return res;
+    }
 
     public TextMetrics() {}
 
@@ -69,6 +76,8 @@ class TextMetrics {
 
     public void setText(String text) {
         this.text = text;
+        calcWords();
+        calcSentences();
         for (Map.Entry<String, BaseReadabilityScore> el : scoreMethodics.entrySet()) {
             BaseReadabilityScore method = el.getValue();
             method.calcScore(this);
@@ -77,14 +86,20 @@ class TextMetrics {
 
     public String getScoreResults(String methodName) {
         Set<String> calcMethods = scoreMethodics.keySet();
+        final String formatStr = "%s: %.2f (about %s year olds).\n";
         String res="";
         if(calcMethods.contains(methodName)) {
             BaseReadabilityScore method = scoreMethodics.get(methodName);
-            res = String.format("%s: %.2f (about %s year olds).",method.getName(),method.getScore(),method.getAgeUpperBound() );
+            res = String.format(formatStr,method.getName(),method.getScore(),method.getAgeUpperBound() );
         } else if (methodName.equals("all")) {
-
+            StringBuilder resultStr = new StringBuilder();
+            for(String mName : calcMethodsNames) {
+                BaseReadabilityScore method = scoreMethodics.get(mName);
+                resultStr.append(String.format(formatStr,method.getName(),method.getScore(),method.getAgeUpperBound()));
+                res = resultStr.toString();
+            }
         } else
-            System.out.println("Unsuppoorted calc mehod");
+            System.out.println("Unsupported calc method");
         return res;
     }
 
@@ -102,8 +117,8 @@ class TextMetrics {
 
   //  public
 
-    private int calcWords(String text) {
-        String[] words = text.split("[\\s+]");
+    private int calcWords() {
+        String[] words = this.text.split("[\\s+]");
         int cnt = 0;
         for(String el : words) {
             if(!el.isEmpty()) {
@@ -115,8 +130,8 @@ class TextMetrics {
         return this.words;
     }
 
-    private int calcSentences(String text) {
-        String[] sentences = text.split("[.?!]");
+    private int calcSentences() {
+        String[] sentences = this.text.split("[.?!]");
         this.sentences = sentences.length;
         return this.sentences;
 
@@ -130,14 +145,12 @@ class TextMetrics {
         this.characters = cnt;
         return cnt;
     }
-/*
-    private double CalcScore() {
-        double result = 4.71 * ((double)this.characters / (double)this.words) +
-                0.5 * ((double)this.words / (double)this.sentences) - 21.43;
-        return result;
+    private int calcSyllables() {
+        return 0;
     }
- */
-
+    private int calcPolySyllables() {
+        return 0;
+    }
 }
 
 abstract class BaseReadabilityScore {
