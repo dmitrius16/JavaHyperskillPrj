@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.Set;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Main {
     public static void main(String[] args) {
@@ -119,7 +121,6 @@ class TextMetrics {
         String[] sentences = text.split("[.?!]");
         this.sentences = sentences.length;
         return this.sentences;
-
     }
 
     private int calcCharacters(String[] words) {
@@ -130,6 +131,16 @@ class TextMetrics {
         this.characters = cnt;
         return cnt;
     }
+
+    private int calcSyllables(String word) {
+        Pattern p = Pattern.compile("[aeiouy]",Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(word);
+        m.groupCount();
+
+        for(char ch : word.toCharArray()) {
+
+        }
+    }
 /*
     private double CalcScore() {
         double result = 4.71 * ((double)this.characters / (double)this.words) +
@@ -137,7 +148,6 @@ class TextMetrics {
         return result;
     }
  */
-
 }
 
 abstract class BaseReadabilityScore {
