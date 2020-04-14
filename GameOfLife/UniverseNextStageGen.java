@@ -11,6 +11,14 @@ public class UniverseNextStageGen {
         cell = new GridCell(dim);
         nxtStage = new boolean[dim][dim];
         this.universe = universe;
+/*
+        cell.setStartPos();
+        do {
+            Coord curPos = cell.getCurPos();
+            nxtStage[curPos.getY()][curPos.getX()] = universe.getCellState(curPos);
+        }while(cell.moveNext());
+
+ */
     }
 
     public void calcNextStage() {
@@ -18,16 +26,32 @@ public class UniverseNextStageGen {
         do {
             int val = calcNeighboors();
             Coord curPos = cell.getCurPos();
-            nxtStage[curPos.getY()][curPos.getX()] = (val == 2 || val == 3);
+
+            if(val == 2 || val == 3) {
+                if (universe.getCellState(curPos)) {
+                    nxtStage[curPos.getY()][curPos.getX()] = true;
+                } else {
+                    if (val == 3) {
+                        nxtStage[curPos.getY()][curPos.getX()] = true;
+                    }
+                }
+            } else {
+                nxtStage[curPos.getY()][curPos.getX()] = false;
+            }
         } while (cell.moveNext());
     }
 
     public void setNextStage() {
         cell.setStartPos();
+        int liveCell = 0;
         do {
             Coord curPos = cell.getCurPos();
-            universe.setCellState(curPos, getNextCellState(curPos));
+            boolean cellState = getNextCellState(curPos);
+            if(cellState)
+                liveCell++;
+            universe.setCellState(curPos, cellState);
         } while (cell.moveNext());
+        universe.setNextStageParam(liveCell);
     }
 
     private boolean getNextCellState(Coord coord) {
