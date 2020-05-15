@@ -67,6 +67,8 @@ public class Universe {
         return liveCell;
     }
 
+    public int getStageNum() {return stageNum;}
+
     public void setCellState(Coord coord, boolean state) {
         grid[coord.getY()][coord.getX()] = state;
     }

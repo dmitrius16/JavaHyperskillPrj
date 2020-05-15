@@ -1,30 +1,22 @@
 package life;
 
-public class UniverseNextStageGen {
+public class UniverseStageGenerator {
 
     private boolean[][] nxtStage;
     private GridCell cell;
     private Universe universe;
 
-    public UniverseNextStageGen(Universe universe) {
+    public UniverseStageGenerator(Universe universe) {
         int dim = universe.getDimension();
         cell = new GridCell(dim);
         nxtStage = new boolean[dim][dim];
         this.universe = universe;
-/*
-        cell.setStartPos();
-        do {
-            Coord curPos = cell.getCurPos();
-            nxtStage[curPos.getY()][curPos.getX()] = universe.getCellState(curPos);
-        }while(cell.moveNext());
-
- */
     }
 
     public void calcNextStage() {
         cell.setStartPos();
         do {
-            int val = calcNeighboors();
+            int val = calcNeighbors();
             Coord curPos = cell.getCurPos();
 
             if(val == 2 || val == 3) {
@@ -39,6 +31,10 @@ public class UniverseNextStageGen {
                 nxtStage[curPos.getY()][curPos.getX()] = false;
             }
         } while (cell.moveNext());
+    }
+
+    public Universe getUniverse() {
+        return universe;
     }
 
     public void setNextStage() {
@@ -58,7 +54,7 @@ public class UniverseNextStageGen {
         return nxtStage[coord.getY()][coord.getX()];
     }
 
-    private int calcNeighboors() {
+    private int calcNeighbors() {
         int res = 0;
         Coord neibCoord = cell.getNeighbour_E();
         res += (universe.getCellState(neibCoord) ? 1 : 0);

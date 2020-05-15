@@ -1,8 +1,10 @@
 package life;
+import javax.swing.*;
 import java.util.Scanner;
 import java.io.IOException;
 public class Main {
-
+    static final int sizeGrid = 20;
+ /*
     public static void clearScreen() {
         try {
             if (System.getProperty("os.name").contains("Windows"))
@@ -12,33 +14,22 @@ public class Main {
         }
         catch (IOException | InterruptedException e) {}
     }
-
+*/
     public static void main(String[] args) {
-        Scanner inp = new Scanner(System.in);
-        String[] usrPar = inp.nextLine().split("\\s+");
-        int sizeGrid = Integer.parseInt(usrPar[0]);
-
-        long seed = System.currentTimeMillis();
-
-       ///#### int numGeneration = Integer.parseInt(usrPar[2]);
-        Universe uni = new Universe(sizeGrid, seed);
-        UniverseNextStageGen stageGen = new UniverseNextStageGen(uni);
-
-        int outputGeneration = 15;
-        Thread curThread = Thread.currentThread();
-        while(outputGeneration >= 0) {
-            uni.outputState();
-            stageGen.calcNextStage();
-            stageGen.setNextStage();
-            outputGeneration--;
-            try {
-                curThread.sleep(500);
-            } catch (InterruptedException ex) {
-                System.out.println(ex.getMessage());
+        int numGeneration = 100;
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                showGameOfLifeGUI();
             }
-            clearScreen();
-        }
+        });
     }
 
+    private static void showGameOfLifeGUI() {
+        long seed = System.currentTimeMillis();
+        JFrame f = new GameOfLife(new UniverseStageGenerator(new Universe(sizeGrid, seed)),sizeGrid,sizeGrid);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.pack();
+        f.setVisible(true);
+    }
 }
 

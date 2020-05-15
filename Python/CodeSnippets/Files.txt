@@ -1,0 +1,48 @@
+===== Work with file
+
+function - open() 
+mode parameter:
+'r' - Open for reading. If the file doesn't exist, an error occurs.
+'w' - Open for writing and truncate. If the file already exists, it will be overwtitten.
+'a' - Open for writing. If the file aready exists, append to the end of the file.
+'+' - Open for updating (reading and writing)
+'t' - Open as a text
+
+default mode is 'r' or more precisely 'rt'
+==== encoding 
+The encoding parameter specifies the encoding that should be used to decode or encode the text file.
+The default value depends on the platform.
+
+#UTF - 8 
+file_utf8 = open('my_file.txt', encoding='utf-8')
+
+#UTF - 16
+file_utf16 = open('my_file.txt', encoding='utf-16')
+
+#CP1252
+file_cp1252 = open('my_file.txt', encoding='CP1252')
+
+==== Reading files in python
+- read(size) - read size bytes of file. If the parameter isn't specified, the whole file is read into a
+single variable
+
+- readline(size) - is similar to read(size) but it reads size bytes from a simgle line, not the whole file.
+
+- readlines() - allows us to read the whole file as a list of lines.
+
+============ read using for loop
+file = open('animals.txt', 'r')
+for line in file:
+    print(line)
+
+
+=========Contex manager keyword = with !!!
+with open("test.txt", 'r') as f:
+    for l in f:
+        print(l)
+
+// read and write
+with open('tarantino.txt', 'r', encoding='utf-8') as in_file, \
+     open('tarantino_lowercase.txt', 'w', encoding='utf-8') as out_file:
+    for line in in_file:
+        out_file.write(line.lower())
