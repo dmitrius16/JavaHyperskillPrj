@@ -1,0 +1,235 @@
+import javax.swing.*;
+
+public class HelloFrame extends JFrame {
+	
+	public HelloFrame() {
+		super("My First Swing App");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(300,300);
+		setVisible(true);
+	}
+
+	public static void main(String[] args) {
+		new HelloFrame();
+	}
+}
+===================================================================
+// To center window on the screen
+call setLocationRelativeTo(null)
+
+import java.swing.*;
+
+public class HelloFrame extends JFrame {
+	public HelloFrame() {
+		super("Hello App");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(300,300);
+		setLocationRelativeTo(null); // !!!!!!!!!!
+		setVisible(true);
+	}
+
+	public static void main(final String[] args) {
+		new HelloFrame();
+	}
+}
+=====================================================================
+JLabel (JLabel - only display text)
+
+JLabel nameLabel = new JLabel()
+nameLabel.setText("Your Name");
+nameLabel.setBounds(40,20,100,30);	//40,20 - (x,y)  100,30 - width, height
+add(nameLabel)
+======================================================================
+JTextField (JTextField - show text and allow input text)
+
+JTextField nameTextField = new JTextField();
+nameTextField.setBounds(160, 20, 100, 30);
+add(nameTextField);
+
+...
+String name = nameTextField.getText() - get text from text JTextField
+nameTextField.setText(someText) - set text 
+=======================================================================
+
+JButton acceptButton = new JButton("Accept");
+acceptButton.setBounds(100, 70, 100, 30);
+add(acceptButton);
+
+//AddActionListener
+acceptButton.addActionListener(new ActionListener() {
+	public void actionPerformed(ActionEvent e) { //We need Override method !!!
+		String helloText = "Hello";
+		String name = nameTextField.getText();
+		if(name != null && name.trim().length() > 0) {
+			helloText += String.format(", %s", name);
+		}
+		helloLabel.setText(helloText);
+	}
+});
+
+Also we can use lambda functions
+Example: button.addActionListener( e -> System.out.println("The button is clicked"));
+
+acceptButton.addActionListener(e -> {
+	String helloText = "Hello";
+	....
+	....
+	helloLabel.setText(helloText);
+})
+===========================================================================
+
+JPanel - it's also a container simmilar to JFrame, but it is smaller container and 
+it cannot represent a window of a program
+
+!!!!!!   JPanel is used to divide JFrame into different sections. !!!!!!
+
+JPanel greenPanel = new JPanel();
+greenPanel.setBounds(40,150,220,70);
+greenPanel.setLayout(new BorderLayout());
+greenPanel.setBackground(Color.GREEN);
+add(greenPanel);
+
+//********** Add components to JPanel *************
+JLabel helloLabel = new JLabel("Hello");
+helloLabel.setBounds(50,20, 100,30);
+helloLabel.setHorizontalAlignment(SwingConstants.CENTER);
+helloLabel.setVerticalAlignment(SwingConstants.CENTER);
+ 
+Font font = new Font("Courier", Font.BOLD,12);
+helloLabel.setFont(font);
+helloLabel.setFont(helloLabel.getFont().deriveFont(16f));
+ 
+greenPanel.add(helloLabel); // adding label to the panel
+ 
+ ========= Layout managers ======================================================
+ Flow layout is the simplest layout manager. It positions emlements from left to right
+ and top to botton. JPanels use Flow Layout as the default layout manager. 
+
+ java.awt.FlowLayout
+
+ We can adjust vertical and horizontal gap between elements.
+Example:
+
+import javax.swing.*;
+import java.awt.*;
+
+public FlowLayoutExample extends JFrame {
+
+	public FlowLayoutExample() {
+		super("Flow layout example");
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(300, 300);
+		setLoacationRelativeTo(null);
+
+		add(new JButton("First"));
+		add(new JButton("Second"));
+		add(new JTextField("Enter your text here"));
+		add(new JLabel("This is a long label"));
+		add(new JButton("Third"));
+
+		setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10)); //20px - horizontal gap, 10 - vertical gap
+		setVisible(true);
+	}
+
+	public static void main(final String[] args) {
+		new FlowLayoutExample();
+	}
+}
+
+======= Grid Layout
+Grid layout divide the GUI window or the container to a grid of cells
+example grid layout - is keypad of the calculator.
+
+The GridLayout manager is implemented by java.awt.GridLayout
+Example:
+
+import javax.swing.*;
+import java.awt.*;
+ 
+ 
+public class GridLayoutExample extends JFrame {
+ 
+    public GridLayoutExample() {
+        super("Grid Layout Example");
+ 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 300);
+        setLocationRelativeTo(null);
+ 
+        add(new JButton("First"));
+        add(new JButton("Second Button"));
+        add(new JTextField("Enter your text here"));
+        add(new JLabel("This is a long label"));
+        add(new JButton("Third"));
+        add(new JLabel("This is another label"));
+ 
+        setLayout(new GridLayout(3, 3, 5, 5));	//3 num cells in a row, 3 num cells in a column 5 - verical and horizontal gap
+        setVisible(true);
+    }
+ 
+    public static void main(final String[] args) {
+        new GridLayoutExample();
+    }
+}
+
+======= Border Layout
+The concepts of the Border Layout is very simple. It divides the container to 5 regions; North, East, South, West, Center.
+java.awt.BorderLayout
+
+constructor - BorderLayout(int hgap, int vgap);
+
+import javax.swing.*;
+import java.awt.*;
+ 
+public class BorderLayoutExample extends JFrame {
+ 
+    public BorderLayoutExample() {
+        super("Border Layout");
+ 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 300);
+        setLocationRelativeTo(null);
+ 
+        setLayout(new BorderLayout());
+ 
+        add(new JButton("North"), BorderLayout.NORTH);
+        add(new JButton("East"), BorderLayout.EAST);
+        add(new JButton("South"), BorderLayout.SOUTH);
+        add(new JButton("West"), BorderLayout.WEST);
+        add(new JButton("Center"), BorderLayout.CENTER);
+        
+        setVisible(true);
+    }
+ 
+    public static void main(final String[] args) {
+        new BorderLayoutExample();
+    }
+}
+
+===== Box Layout we can stack components like boxes vertically or horizontally
+import javax.swing.*;
+ 
+public class BoxLayoutExample extends JFrame {
+ 
+    public BoxLayoutExample() {
+        super("Box Layout Example");
+ 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(300, 300);
+        setLocationRelativeTo(null);
+ 
+        add(new JButton("First"));
+        add(new JButton("Second"));
+        add(new JButton("Third"));
+        add(new JButton("Fourth"));
+        add(new JButton("Fifth"));
+ 
+        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+        setVisible(true);
+    }
+ 
+    public static void main(final String[] args) {
+        new BoxLayoutExample();
+    }
+}

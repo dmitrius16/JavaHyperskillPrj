@@ -1,0 +1,88 @@
+Threads can be implemented extending class Thread
+
+class MyThread extends Thread {
+	public MyThread(){
+		.....
+	}
+	@Override
+	public void run() {
+		// implement logic
+	}
+}
+
+or implementing interface Runable
+
+class MyThread implements Runnable() {
+	....
+
+	@Override 
+	public void run() {
+	
+	}
+}
+====== sleep ===================
+To start thread client code must call start method!
+
+Thread.sleep(time_ms) - for suspend thread for a must
+
+another way to make the current thread sleep is to use the special class
+java.util.concurent
+TimeUnit.MILLISECONDS.sleep(2000) - performs Thread.sleep for 2000 MILLISECONDS
+TimeUnit.SECONDS.sleep(2) - performs Thread.sleep for 2 SECONDS
+
+Also there are: NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS
+====== join ====================
+
+The join methods forces the current thread to wait for the complition of another thread.
+example:
+Thread thread = ...
+thread.start();
+
+System.out.println("Do something useful");
+thread.join();	// waiting for thread to die
+
+System.out.println("Do something else);
+!!!!! we can wait with timeout
+
+thread.join(2000L);
+
+
+================================ Exceptions in Thread ================================
+
+======================================================================================
+
+======================== Interruption ===================
+
+Invoke thread.interrupt() will cause InterruptedException if the thread is sleeping or joining another thread.
+Otherwise, only thing that will happen -> interrupted flag will be set to true;
+
+example how thread may handle an interruption:
+
+public class CustomThread extends Thread {
+	@Override
+	public void run() {
+		while(!isInterrupted()) {
+			try {
+				doAction();
+				Thread.sleep(1000); // it may throw InterruptedException
+			} catch (InterruptedException e) {
+				System.out.println("Sleeping was interrupted");
+				break;
+			}
+		}
+		System.out.printf("%s finished", getName());
+	}
+
+	private void doAction() {
+		// something useful
+	}
+}
+=========================== States of a thread
+
+Thread.getState()
+NEW
+RUNNABLE 
+BLOCKED
+WAINTING
+TIMED_WAITING
+TERMINATED

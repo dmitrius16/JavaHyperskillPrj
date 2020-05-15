@@ -1,0 +1,75 @@
+The functional interface is an interface with a single abstract method
+
+BiFunction<T, U, R> - is a standard functional interface representing a function with two arguments of types T and U.
+It returns a value of type R.
+
+Function<T, R> is also a standard functional interface but i has only one argument of type T and returns a value of type R.
+
+
+@FunctionalInterface
+interface Func<T, R> {
+    R apply(T val);
+
+    static void doNothingStatic() {
+
+    }
+
+    default void doNothingByDefault() {
+
+    }
+}
+
+Implementing interface...
+
+Func<Long, Long> square = new Func<Long, Long>() {
+    @Override
+    public Long apply(Long val) {
+        return val * val;
+    }
+};
+
+long val = square.apply(10L);
+
+======= Lambda expression
+Func<Long, Long> square = val -> val * val;
+long val = square.apply(10L);
+
+description Lambda: part before '->' operator are the parameters,
+and part following the '->' is its body
+
+Examples:
+    //Lambda with two parameters
+    BiFunction<Integer, Integer, Integer> sum = (x,y) -> x+y;
+
+    //if it has only argument "()" are optional
+    Function<Integer, Integer> identity1 (x) -> x;
+
+    //it's valid too 
+    Function<Integer, Integer> identity2 = (x) -> x;
+
+    //whithout type inference
+    Function<Integer, Integer> mult = (Integer x) -> x * 2;
+
+    // with multiple statements
+    Function<Integer, Integer> adder = (x) -> {
+        x += 5;
+        x += 10;
+        return x;
+    }
+    
+======== Passing lambda expressions to methods
+
+public static void acceptFunctionalInterface(Function<Integer, Integer> f) {
+    System.out.println(f.apply(10));
+}
+
+Let's pass some functions in the method:
+
+Function<Integer, Integer> f = (x) -> x + 1;
+acceptFunctionalInterface(f);
+
+//or even without reference
+acceptFunctionalInterface(x -> x + 1);
+
+
+
