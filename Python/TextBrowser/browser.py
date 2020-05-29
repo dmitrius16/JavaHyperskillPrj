@@ -1,6 +1,7 @@
 import re
 import os
 import sys
+from collections import deque
 
 nytimes_com = '''
 This New Liquid Is Magnetic, and Mesmerizing
@@ -46,7 +47,7 @@ def get_url():
     url_content = ""
     while True:
         usr_url = input()
-        if usr_url == "exit":
+        if usr_url == "exit" or usr_url == "back":
             break;
         if check_url(usr_url):
             if usr_url == "bloomberg.com":
@@ -64,33 +65,41 @@ def get_url():
 # write your code here
 def main():
     dir = ""
+    page_story = deque()
     if len(sys.argv) >= 2:
         dir = sys.argv[1]
         # dir = "./" + dir
         dir_list = os.listdir()
         if dir not in dir_list:
             os.mkdir(dir)
-
+    url_content_prev = ""
     while True:
         url, url_content = get_url()
         if url == "exit":
             break;
-        print(url_content)
+        elif url == "back":
+            if len(page_story) > 0:
+                url_content = page_story.pop()
+                print(url_content)
+        else:
+            print(url_content)
+            if url_content_prev != "":
+                page_story.append(url_content_prev)
+            url_content_prev = url_content
+            file_name = url[:-4]
+            with open(dir + "\\" + file_name, "w") as file:
+                file.write(url_content)
 
-        file_name = url[:-4]
-        with open(dir + "\\" + file_name, "w") as file:
-            file.write(url_content)
-
-        #get user file name
-        file_name = input()
-        if file_name == "exit":
-            break
-        try:
-            with open(dir + "/" + file_name, "r") as file:
-                content = file.readlines()
-                print("".join(content))
-        except IOError:
-            print("file not found")
+            #get user file name
+            # file_name = input()
+            # if file_name == "exit":
+            #     break
+            # try:
+            #     with open(dir + "/" + file_name, "r") as file:
+            #         content = file.readlines()
+            #         print("".join(content))
+            # except IOError:
+            #     print("file not found")
 
 
 
