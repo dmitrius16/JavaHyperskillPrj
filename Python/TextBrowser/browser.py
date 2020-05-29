@@ -39,47 +39,62 @@ Twitter and Square Chief Executive Officer Jack Dorsey
 
 
 def check_url(url):
-    p = re.compile(r"([a-z]{3})?\w*\.\[a-z]{3}", re.IGNORECASE)
+    p = re.compile(r"([a-z]{3})?\w*\.[a-z]{3}", re.IGNORECASE)
     return p.match(url) is not None
 
 def get_url():
-    url = ""
+    url_content = ""
     while True:
         usr_url = input()
         if usr_url == "exit":
             break;
         if check_url(usr_url):
             if usr_url == "bloomberg.com":
-                url = bloomberg_com
+                url_content = bloomberg_com
                 break
             elif usr_url == "nytimes.com":
-                url = nytimes_com
+                url_content = nytimes_com
                 break
             else:
-                print("page not found")
+                print("Error: page not found")
         else:
             print("Error: Incorrect URL")
-    return url
+    return usr_url, url_content
 
 # write your code here
 def main():
     dir = ""
     if len(sys.argv) >= 2:
         dir = sys.argv[1]
-        dir = "./" + dir
-        os.mkdir(dir)
+        # dir = "./" + dir
+        dir_list = os.listdir()
+        if dir not in dir_list:
+            os.mkdir(dir)
 
-    url = get_url()
+    while True:
+        url, url_content = get_url()
+        if url == "exit":
+            break;
+        print(url_content)
 
-    print(url)
-    if url != "":
         file_name = url[:-4]
-        with open(dir + "/" + file_name, "w") as file:
-            file.write(url)
+        with open(dir + "\\" + file_name, "w") as file:
+            file.write(url_content)
 
-     # write user read file
+        #get user file name
+        file_name = input()
+        if file_name == "exit":
+            break
+        try:
+            with open(dir + "/" + file_name, "r") as file:
+                content = file.readlines()
+                print("".join(content))
+        except IOError:
+            print("file not found")
 
-     # file not found
+
+
+
 
 if __name__ == '__main__':
     main()
