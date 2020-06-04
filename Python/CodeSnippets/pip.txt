@@ -1,0 +1,40 @@
+Usage:
+ -install command:
+
+    pip install some_package - install some_package
+    
+    pip install some_package==1.1.2 install some_package version 1.1.2
+    
+    we can define a minimum version:
+    
+    pip indtall "some_package>=1.1.2"
+    
+ -show command: show information about installed packages, for instance, their version, author, licence
+    
+    pip show some_package
+    
+ -list command
+    
+    pip list - list all the packages you installed on your computer in alphabetical order
+    
+    pip list --outdated or pip list -on
+    
+    if there are outdated packages we can try to upgrate it
+    
+    pip install --upgrate some_package
+    
+ -ununstall command:
+    pip ununstall some_package
+    
+    
+It may be advantageous to keep a list of packages to be installed, i.t. dependencies in a special file
+It is convenient because you can install the packages directly from it:
+
+pip install -r requirements.txt
+
+For write the file yourself listing all the names of necessary packages will be enough to 
+run the code below in order to obtain the requirements file 
+
+pip freeze > requirements.txt
+   
+   
