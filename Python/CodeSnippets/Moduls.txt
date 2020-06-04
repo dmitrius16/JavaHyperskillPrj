@@ -1,0 +1,48 @@
+package/                           # first we name the main or top-level package
+            __init__.py            # this directory should be treated as a package
+            subpackage/            # we can add subpackage with extra modules
+                  __init__.py      # this directory should be treated as a subpackage
+                   artificial.py
+                   amateurs.py
+                   ...
+            subpackage2/                  
+                  __init__.py
+                  amazing.py
+                  animate.py
+                  barriers.py
+                  ...
+example #1              
+    from package.subpackage import artificial
+    
+    artificial.function(arg1, arg2)
+    
+example #2
+    
+    import package.subpackage.artificial
+    package.subpackage.artificial.function(arg1, arg2)
+    
+example #3 import particular function from submodule
+
+    from package.subpackage.artificial import function 
+    
+    after that, you can address the function() directly, without specifying the full path to a module.
+    
+    
+Import * from:
+
+    from package.subpackage import * - this code will import all the submoduls... Not recomendede
+    
+    There you want to list the submodules to be imported while 
+        
+    from package import * operation is executed.
+    
+    add to __init__.py
+    __all__ = ["submodule1", "submodule10"]
+    
+    
+Relative import 
+    from . import artificial
+    from .. import subpackage2
+    from ..subpackage2 impoprt module
+    
+    
