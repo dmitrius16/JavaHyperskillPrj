@@ -4,6 +4,7 @@ import os
 from collections import deque
 from bs4 import BeautifulSoup
 import re
+import colorama
 
 def get_url(url_str):
     r = re.compile("https?://")
@@ -16,6 +17,7 @@ def is_file(usr_input_str):
 
 
 def main():
+    colorama.init(autoreset=True)
     usr_dir = ""
     page_story = deque()
     if len(sys.argv) >= 2:
@@ -43,14 +45,19 @@ def main():
                 url = get_url(usr_inp)
                 page = requests.get(url)
                 soup = BeautifulSoup(page.content, 'html.parser')
-                tags = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li'])
+                tags = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a'])  # , 'ul', 'ol', 'li'])
                 content = []
                 for tag in tags:
-                    if len(tag.text) and tag.text[0] == '\n':
-                        continue
-                    content.append(tag.text)
+                    # if len(tag.text) and tag.text[0] == '\n':
+                    #    continue
+                    if tag.string is not None:
+                        if tag.name == 'a':
+                            print(colorama.Fore.BLUE + tag.string)
+                        else:
+                            print(tag.string)
+                        content.append(tag.string)
                 content = "\n".join(content)
-                print(content)
+                # print(content)
                 # print(content.text)
                 if url_content_prev != "":
                     page_story.append(url_content_prev)
