@@ -1,0 +1,202 @@
+*Also look at project files*
+
+
+When constructing a reader or writer object, the default character encoding of the operating system
+
+    FileReader reader = new FileReader("MyFile.txt")
+    FileWriter writer = new FileWriter("YourFile.txt")
+
+If we want to use a specific charset, use an InputStreamReader of OutputStreamWriter instead:
+
+    InputStreamReader reader = new InputStreamReader(new FileInputStream("MyFile.txt"), "UTF-16");
+
+    OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("YourFile.txt", "UTF-16");
+    
+In case if we want to use a BufferedReader, or BufferedWriter just wrap the InputStreamReader inside, for example:
+
+    BufferedReader bufReader = new BufferedReader(reader);
+    
+    BufferedWriter bufWriter = new BufferedWriter(writer);
+    
+    
+**********  Java Reading from Text File Example: *************
+
+    import java.io.FileReader;
+    import java.io.IOException;
+     
+        public class TextFileReadingExample1 {
+     
+        public static void main(String[] args) {
+            try {
+                FileReader reader = new FileReader("MyFile.txt");
+                int character;
+     
+                while ((character = reader.read()) != -1) {
+                    System.out.print((char) character);
+                }
+                reader.close();
+     
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+     
+    }
+*******************************************************************
+
+******* This example reads a text file with assumption that *******
+    the encoding is UTF-16:
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+ 
+
+public class TextFileReadingExample2 {
+ 
+    public static void main(String[] args) {
+        try {
+            FileInputStream inputStream = new FileInputStream("MyFile.txt");
+            InputStreamReader reader = new InputStreamReader(inputStream, "UTF-16");
+            int character;
+ 
+            while ((character = reader.read()) != -1) {
+                System.out.print((char) character);
+            }
+            reader.close();
+ 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+****** And the following example uses a BufferedReader to read a text file line by line 
+                (this is the most efficient and preferred way): ***************************
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+ 
+
+public class TextFileReadingExample3 {
+ 
+    public static void main(String[] args) {
+        try {
+            FileReader reader = new FileReader("MyFile.txt");
+            BufferedReader bufferedReader = new BufferedReader(reader);
+ 
+            String line;
+ 
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+            }
+            reader.close();
+ 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+ 
+}
+
+
+*************************   Writing file example: ************************************
+
+Note that, a writer uses default character encoding of the operating system by default. 
+It also creates a new file if not exits, or overwrites the existing one. 
+If you want to append text to an existing file, pass a boolean flag of true to constructor of the writer class:
+
+ 
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class TextFileWritingExample1 {
+ 
+    public static void main(String[] args) {
+        try {
+            FileWriter writer = new FileWriter("MyFile.txt", true);
+            writer.write("Hello World");
+            writer.write("\r\n");   // write new line
+            writer.write("Good Bye!");
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+ 
+    } 
+}
+
+The following example uses a BufferedReader that wraps a FileReader to append text to an existing file:
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+ 
+public class TextFileWritingExample2 {
+ 
+    public static void main(String[] args) {
+        try {
+            FileWriter writer = new FileWriter("MyFile.txt", true);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer);
+ 
+            bufferedWriter.write("Hello World");
+            bufferedWriter.newLine();
+            bufferedWriter.write("See You Again!");
+ 
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+ 
+    }
+}
+
+And the following example specifies specific character encoding (UTF-16) when writing to the file:
+
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+ 
+/**
+ * This program demonstrates how to write characters to a text file using
+ * a specified charset.
+ * @author www.codejava.net
+ *
+ */
+public class TextFileWritingExample3 {
+ 
+    public static void main(String[] args) {
+        try {
+            FileOutputStream outputStream = new FileOutputStream("MyFile.txt");
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "UTF-16");
+            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+             
+            bufferedWriter.write("Xin chao");
+            bufferedWriter.newLine();
+            bufferedWriter.write("H?n g?p l?i!");
+             
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+         
+    }
+}
+
+NOTE: From Java 7, you can use try-with-resources statement to simplify the code of opening and closing 
+the reader/writer. For example:
+
+try (FileReader reader = new FileReader("MyFile.txt")) {
+    int character;
+ 
+    while ((character = reader.read()) != -1) {
+        System.out.print((char) character);
+    }
+} catch (IOException e) {
+    e.printStackTrace();
+}
+
+
+
