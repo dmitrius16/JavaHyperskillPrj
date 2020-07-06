@@ -5,22 +5,16 @@ import java.util.Random;
 public class Universe {
     private Random rnd;
     private int stageNum;
+    private int sizeDim;
     private int liveCell;
     private boolean[][] grid;
 
     public int getDimension() {return grid.length;}
 
-    public Universe(int sizeDim, long seed) {
+    public Universe(int sizeDim) {
         grid = new boolean[sizeDim][sizeDim];
-        rnd = new Random(seed);
-        for(int i = 0; i < sizeDim; i++) {
-            for(int j = 0; j < sizeDim; j++) {
-                boolean state = rnd.nextBoolean();
-                grid[i][j] = state;
-                if(state)
-                    liveCell++;
-            }
-        }
+        this.sizeDim = sizeDim;
+        generateCells();
         stageNum = 1;
     }
     // it's debug constructor, clear it after finished project
@@ -54,6 +48,13 @@ public class Universe {
         }
     }
 
+
+
+    public void reset() {
+        generateCells();
+        stageNum = 1;
+    }
+
     public boolean getCellState(Coord coord) {
         return grid[coord.getY()][coord.getX()];
     }
@@ -71,5 +72,19 @@ public class Universe {
 
     public void setCellState(Coord coord, boolean state) {
         grid[coord.getY()][coord.getX()] = state;
+    }
+
+    private void generateCells() {
+        liveCell = 0;
+        long seed = System.currentTimeMillis();
+        rnd = new Random(seed);
+        for(int i = 0; i < sizeDim; i++) {
+            for(int j = 0; j < sizeDim; j++) {
+                boolean state = rnd.nextBoolean();
+                grid[i][j] = state;
+                if(state)
+                    liveCell++;
+            }
+        }
     }
 }

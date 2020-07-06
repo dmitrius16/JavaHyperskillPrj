@@ -1,0 +1,11 @@
+
+b'v\xe\xA' - byte representation
+
+bytes([1,2,34]) - create bytes from list
+bytes(5) - create 5 zero bytes
+
+string.encode(....='utf-8') - encode string to bytes with coding utf-8
+b'....'.decode(encoding='utf-8') - create string from bytes
+
+int.to_bytes() - create bytes from int
+(int).from_bytes() - create int from bytes...

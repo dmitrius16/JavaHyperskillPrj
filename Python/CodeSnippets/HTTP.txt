@@ -1,0 +1,13 @@
+URL template:
+<protocol>://<login>:<password>@<host>:<port>/<path>?<request parameters>#<anchor>
+
+HTTP ports:
+HTTP - 80 or 8080
+HTTPS - 443
+
+Return codes:
+1xx: Informational	Codes beginning with "1" are called information codes. They report on how client requests are processed.
+2xx: Success	    Messages of this class inform that the action requested by the client has been successfully accepted for processing.
+3xx: Redirection	It means further action must be taken in order to complete the request.
+4xx: Client Error	It reports errors on the client's side.
+5xx: Server Error	The code indicates that the operation was unsuccessful due to the fault of the server.
