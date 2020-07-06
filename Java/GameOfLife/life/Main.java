@@ -3,7 +3,6 @@ import javax.swing.*;
 import java.util.Scanner;
 import java.io.IOException;
 public class Main {
-    static final int sizeGrid = 20;
  /*
     public static void clearScreen() {
         try {
@@ -26,7 +25,8 @@ public class Main {
 
     private static void showGameOfLifeGUI() {
         long seed = System.currentTimeMillis();
-        JFrame f = new GameOfLife(new UniverseStageGenerator(new Universe(sizeGrid, seed)),sizeGrid,sizeGrid);
+        /// JFrame f = new GameOfLife(new UniverseStageGenerator(new Universe(sizeGrid, seed)),sizeGrid,sizeGrid);
+        JFrame f = new GameOfLife();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
         f.setVisible(true);

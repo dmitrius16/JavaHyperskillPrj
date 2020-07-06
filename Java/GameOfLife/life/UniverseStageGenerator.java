@@ -12,7 +12,9 @@ public class UniverseStageGenerator {
         nxtStage = new boolean[dim][dim];
         this.universe = universe;
     }
-
+    public void resetUniverse() {
+        universe.reset();
+    }
     public void calcNextStage() {
         cell.setStartPos();
         do {

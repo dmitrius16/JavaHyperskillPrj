@@ -1,0 +1,35 @@
+import socket
+
+client_socket = socket.socket()
+
+host_name = '127.0.0.1'  # it's string !!!
+port = 9090  # port can be from 0 to 65535, but 0 - 1023 - system socket's so for user needs we should choose higher number
+
+address = (host_name, port)
+client_socket.connect(address)
+
+data = 'Wake up, Dmitriy'
+data = data.encode()  #  convert data to bytes
+client_socket.send(data)
+
+
+....
+
+client_socket.close()
+
+
+!!!!! with as
+
+Sockets just like file objects, can be used as context managers.
+import socket
+
+with socket.socket() as client_socket:
+    host_name = '127.0.0.1'
+    port = 9090
+    address = (host_name, port)
+
+    client_socket.connect(address)
+    ....
+    client_socket.sent(data)
+    ....
+
