@@ -18,7 +18,11 @@ public class Main {
 
     public static MyMatrix inputMatrix(int numMatrix) throws IOException {
         String[] numMatrixStr = {"first", "second"};
-        System.out.printf("Enter size of %s matrix: ", numMatrix <= 1 ? numMatrixStr[0] : numMatrixStr[1]);
+
+        if(numMatrix == 0)
+            System.out.printf("Enter matrix size: ");
+        else
+            System.out.printf("Enter size of %s matrix: ", numMatrix == 1 ? numMatrixStr[0] : numMatrixStr[1]);
 
 
         String[] dim = usrInp.readLine().split("\\s+");
@@ -26,7 +30,11 @@ public class Main {
         int col = Integer.parseInt(dim[1]);
         MyMatrix matrix = new MyMatrix(row,col);
 
-        System.out.printf("Enter %s matrix:\n", numMatrix <= 1 ? numMatrixStr[0] : numMatrixStr[1]);
+        if(numMatrix == 0)
+            System.out.println("Enter matrix: ");
+        else
+            System.out.printf("Enter %s matrix:\n", numMatrix <= 1 ? numMatrixStr[0] : numMatrixStr[1]);
+
         for(int i = 0; i < row; i++) {
             String temp = usrInp.readLine();
             matrix.FillMatrix(i,temp);
@@ -34,11 +42,9 @@ public class Main {
         return matrix;
     }
 
-    private static void ShowMenuItems() {
-        String[] items= {"1. Add matrices", "2. Multiple matrix to a constant", "3. Multiple matrices", "0. Exit"};
-        for(String item : items) {
-            System.out.println(item);
-        }
+    public static void outputResult(MyMatrix A) {
+        System.out.println("The result is:");
+        System.out.println(A);
     }
 
     private static MyMenu CreateMainMenu() {
@@ -101,16 +107,40 @@ public class Main {
         transponseMenu = new MyMenu(mainMenu);
         transponseMenu.addItem("1. Main diagonal",()->{
             try {
-                MyMatrix A = inputMatrix(1);
-                MyMatrix C = A.transponse();
-                System.out.println(C);
+                MyMatrix A = inputMatrix(0);
+                MyMatrix C = A.transpose();
+                outputResult(C);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         });
-        transponseMenu.addItem("2. Side diagonal",()->{});
-        transponseMenu.addItem("3. Vertical line",()->{});
-        transponseMenu.addItem("4. Horizontal line", ()->{});
+        transponseMenu.addItem("2. Side diagonal",()->{
+            try {
+                MyMatrix A = inputMatrix(0);
+                MyMatrix C = A.transposeSideDiag();
+                outputResult(C);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        transponseMenu.addItem("3. Vertical line",()->{
+            try {
+                MyMatrix A = inputMatrix(0);
+                MyMatrix C = A.transposeByVerticalLine();
+                outputResult(C);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        transponseMenu.addItem("4. Horizontal line", ()->{
+            try {
+                MyMatrix A = inputMatrix(0);
+                MyMatrix C = A.transposeByHorizontalLine();
+                outputResult(C);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         transponseMenu.addItem("0. Exit", ()->{
             currentMenu = transponseMenu.getParent();
         });

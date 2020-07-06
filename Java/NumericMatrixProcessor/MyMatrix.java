@@ -54,7 +54,7 @@ public class MyMatrix {
         return res;
     }
 
-    public MyMatrix transponse() {
+    public MyMatrix transpose() {
         MyMatrix res = new MyMatrix(this.cols, this.rows); // switch num cols and num rows
         for(int i = 0; i < this.rows; i++) {
             for(int j = 0; j < this.cols; j++) {
@@ -63,11 +63,41 @@ public class MyMatrix {
         }
         return res;
     }
-/*
-    public MyMatrix transponseSideDiag() {
 
+    public MyMatrix transposeSideDiag() {
+        MyMatrix res = new MyMatrix(this.cols, this.rows);
+        int indLastCol = this.cols - 1;
+        int indLastRow = this.rows - 1;
+        for(int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.cols; j++) {
+                res.array2D[j][i] = this.array2D[indLastRow - i][indLastCol - j];
+            }
+        }
+        return res;
     }
-*/
+
+    public MyMatrix transposeByVerticalLine() {
+        MyMatrix res = new MyMatrix(this.rows, this.cols);
+        int indLastCol = this.cols - 1;
+        for(int i = 0; i < this.rows; i++) {
+            for(int j = 0; j < this.cols; j++) {
+                res.array2D[i][j] = this.array2D[i][indLastCol - j];
+            }
+        }
+        return res;
+    }
+
+    public MyMatrix transposeByHorizontalLine() {
+        MyMatrix res = new MyMatrix(this.rows, this.cols);
+        int indLastRow = this.rows - 1;
+        for(int i = 0; i < this.rows; i++) {
+            for(int j = 0; j < this.cols; j++) {
+                res.array2D[i][j] = this.array2D[indLastRow - i][j];
+            }
+        }
+        return res;
+    }
+
     private double dotProduct(MyMatrix rMatrix, int rowLeftMatrix, int colRightMatrix) {
         double res = 0.f;
         for(int j = 0; j < this.cols; j++) {
