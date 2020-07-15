@@ -1,4 +1,5 @@
 package processor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,20 +26,20 @@ public class MyMenu {
 
     public void addItem(String name, MyMenuExecuter exec) {
         int numItemInd = name.indexOf('.');
-        if(numItemInd != - 1) {
-            int numInd = Integer.parseInt(name.substring(0,numItemInd));
+        if (numItemInd != -1) {
+            int numInd = Integer.parseInt(name.substring(0, numItemInd));
             orderItems.add(numInd);
-            menuItems.put(numInd,new MenuItem(name, exec));
+            menuItems.put(numInd, new MenuItem(name, exec));
         }
     }
 
     public boolean menuHandler(int numItem) {
-        if(numItem == 0) {
+        if (numItem == 0) {
             //it's exit code
-            return true;        // rewrite exit logic
+            return true;        // rewrite exit logic in the future
         }
 
-        if(menuItems.containsKey(numItem)) {
+        if (menuItems.containsKey(numItem)) {
             menuItems.get(numItem).executer.executeCmd();
         } else {
             System.out.println("Incorrect menu item");
@@ -47,7 +48,7 @@ public class MyMenu {
     }
 
     public void display() {
-        for(int el : orderItems) {
+        for (int el : orderItems) {
             System.out.println(menuItems.get(el).itemName);
         }
     }
@@ -55,6 +56,7 @@ public class MyMenu {
     class MenuItem {
         private final String itemName;
         private final MyMenuExecuter executer;
+
         public MenuItem(String name, MyMenuExecuter exec) {
             itemName = name;
             executer = exec;
