@@ -1,0 +1,107 @@
+my_list = [1, 2, 3]
+
+my_iterator = iter(my_list)
+
+print(my_iterator)
+
+iterate over list
+
+print(next(my_iterator)
+# 1
+
+print(next(my_iterator)
+# 2
+
+print(next(my_iterator)
+# 3
+
+******************** itertools **********************
+
+it needs for saving memory
+
+
+--------- itertools.chain(iterable1, iterable2, ...) - useful when you need to treat a 
+number of consecuitive sequences as a single sequence. 
+
+students_maths = ['Ann', 'Kate', 'Tom']
+students_english = ['Tim', 'Carl', 'Dean']
+students_history = ['Jane', 'Mike']
+ 
+for student in itertools.chain(students_maths, students_english, students_history):
+    print(student)
+ 
+# Ann
+# Kate
+# Tom
+# Tim
+# Carl
+# Dean
+# Jane
+# Mike
+
+--------- itertools.product()
+
+first_list = ['Hi', 'Bye', 'How are you']
+second_list = ['Jane', 'Anton']
+ 
+for first, second in itertools.product(first_list, second_list):
+    print(first, second)
+ 
+# Hi Jane
+# Hi Anton
+# Bye Jane
+# Bye Anton
+# How are you Jane
+# How are you Anton
+
+# Trying to create a list containing 10^12 elements will result in a memory error:
+too_long_list = list(itertools.product(range(1000000), range(1000000)))
+ 
+# However, works with iterators:
+my_iterator = itertools.product(range(1000000), range(1000000))
+for i in range(5):
+    print(next(my_iterator))
+ 
+# (0, 0)
+# (0, 1)
+# (0, 2)
+# (0, 3)
+# (0, 4)
+
+
+-------- itertools.combinations()
+my_iter = itertools.combinations(range(1, 1000000), 2)
+ 
+for i in range(5):
+    print(next(my_iter))
+ 
+# (1, 2)
+# (1, 3)
+# (1, 4)
+# (1, 5)
+# (1, 6)
+
+for el in itertools.combinations("ABC",1):
+    print(el)
+    
+('A',)
+('B',)
+('C',)
+
+for el in itertools.combinations("ABC",2):
+    print(el)
+    
+('A', 'B')
+('A', 'C')
+('B', 'C')
+
+for el in itertools.combinations("ABC",3):
+    print(el)
+    
+('A', 'B', 'C')
+
+**************** end itertools ***********************
+
+
+
+
