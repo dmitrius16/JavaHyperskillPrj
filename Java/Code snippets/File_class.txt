@@ -1,0 +1,46 @@
+class File in java.io
+
+File fileOnUnix = new File("/home/username/Documents/");
+File fileOnWin = new File("D:\\Materials\\java-materials.pdf");
+
+Basic methods:
+   String getPath();
+   String getName();
+   boolean isDirectory();
+   boolean isFile();
+   boolean exists();
+   String getParent();
+   
+   boolean canRead();
+   boolean canWrite();
+   boolean canExecute();
+   
+----------------Writing files-------------
+
+class FileWriter
+Constructors:
+    + FileWriter(String fileName)
+    + FileWriter(String fileName, boolean append);
+    + FileWriter(File file);
+    + FileWriter(File file, boolean append);
+    
+Usage example:
+
+File file = new File("/home/username/path/to/your/file.txt");
+FileWriter writer = new FileWriter(file); //overwrites the file
+
+writer.write("Hello");
+writer.write("Java");
+
+writer.close();
+
+
+-------------class PrintWriter-----------------
+File file = new File("/home/art/Documents/file.txt");
+try(PrintWriter printWriter = new PrintWriter(file)) {
+    printWriter.print("Hello");
+    printWriter.println("Java");
+    printWriter.println(123);
+} catch(IOException ex) {
+    System.out.println("An exception occurs %s", e.getMessage()
+}

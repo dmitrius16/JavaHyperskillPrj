@@ -1,0 +1,71 @@
+---------- Character Output stream
+
+FileWriter, PrintWriter and etc. have a common abstract ancestor
+!!!!    java.io.Writer !!!!
+
+groups methods for writing:
+    void write(char[] cbuf);
+    void write(char[] cbuf, int off, int len);
+    void write(int c);
+    void write(String str);
+    void write(String str, int off, int len);
+
+example:
+
+try (CharArrayWriter contactWriter = new CharArrayWriter();
+     FileWriter bc1 = new FileWriter("business_card_1.txt", true);
+     FileWriter bc2 = new FileWriter("business_card_2.txt", true)) {
+
+    contactWriter.write("Phone: 111-222-333; Address: Hyperskill Avenue, 7");
+    contactWriter.writeTo(bc1); //!!!!! write to different writer
+    contactWriter.writeTo(bc2); //!!!!!
+
+    char[] array = contactWriter.toCharArray(); // writer content as char[]
+} catch (Exception e) {
+    System.out.println("Something went wrong");
+}
+
+-------- Byte Output Stream
+!!!! java.io.OutputStream !!!!
+methods for writing:
+void write(byte[] b);
+void write(byte[] b, int off, int len);
+abstract void write(int b);
+
+subclasses OutputStream:
+    + FileOutputStream
+    + ByteArrayOutputStream
+    ---------
+    here classes no destination and write data to other output streams.
+    + PipedOutputStream
+    + FilterOutputStream
+
+example:
+byte[] date = new byte[] {'s','t','r','e','a','m'};
+try (OutputStream outputStream = new FileOutputStream("sample.txt, false)) {
+    outputStream.write(data);
+} catch(IOException e) {
+    System.out.println("Something goes wrong);
+}
+
+For write to byte stream we have to convert "data" to byte:
+    String str = "stream";
+    byte[] strAsBytes = str.getBytes();
+
+
+----------- BufferedStreams
+
+class BufferedOutputStream
+    BufferedOutputStream(OutputStream out);
+    BufferedOutputStream(OutputStream out, int size);
+
+class BufferedWriter
+    BufferedStreams(Writer out)
+    BufferedStreams(Writer out, int size)
+
+This classes are intermediate output stream. They take an output stream as input and do buffering
+before delegating to another stream.
+
+
+
+
