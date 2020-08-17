@@ -44,3 +44,31 @@ try(PrintWriter printWriter = new PrintWriter(file)) {
 } catch(IOException ex) {
     System.out.println("An exception occurs %s", e.getMessage()
 }
+
+---- Reading files-----------------------------
+1. with using Scanner
+    File file = new File(pathToFile);
+    Scanner scanner = new Scanner(file);    // here we must handle the checked FileNotFoundException/
+    
+    Now we can use methods of Scanner to read data as Strings, integers and so on/
+    
+        while (scanner.hasNext()) {
+            System.out.print(scanner.nextLine());
+        }
+        
+2. --------Since Java 1.7 there is a set of new classes and methods for handling files.
+    !!!Note that this methods should be used only for !!!small!!! text files - their size is smaller than JVM avaliable RAM/
+    
+    import java.nio.file.Files;
+    import java.nio.file.Paths;
+    
+    public static String readFileAsString(String fileName) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(fileName)));
+    }
+    
+    
+
+
+
+
+

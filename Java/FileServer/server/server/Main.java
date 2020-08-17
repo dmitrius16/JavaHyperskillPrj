@@ -1,6 +1,12 @@
 package server;
-import java.lang.reflect.Array;
+import java.io.IOException;
 import java.util.Scanner;
+
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+
 public class Main {
     private static String[] items = {"add", "get", "delete", "exit"};
     public static void handleMenuItems(FileStorageSimulator fileStorage) {
@@ -28,7 +34,23 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        FileStorageSimulator fileStorage = new FileStorageSimulator();
-        handleMenuItems(fileStorage);
+        int port = 23456;
+        System.out.println("Server started!");
+        FileStorage fStorage = new FileStorage();
+        try (ServerSocket server = new ServerSocket(port)) {
+            try (Socket socket = server.accept();
+                DataInputStream input = new DataInputStream(socket.getInputStream());
+                DataOutputStream output = new DataOutputStream(socket.getOutputStream())
+            ) {
+                String msg = input.readUTF();
+
+                System.out.println("Received: " + msg);
+                String outMsg = "All files were sent!";
+                System.out.println("Sent: " + outMsg);
+                output.writeUTF(outMsg);
+            }
+        } catch (IOException ex)    {
+            ex.printStackTrace();
+        }
     }
 }
