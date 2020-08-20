@@ -9,6 +9,9 @@ import java.io.DataOutputStream;
 
 public class Main {
     private static String[] items = {"add", "get", "delete", "exit"};
+    private static final String okCode = "200";
+    private static final String errCode = "403";
+    /*
     public static void handleMenuItems(FileStorageSimulator fileStorage) {
         Scanner scanner = new Scanner(System.in);
         boolean exec = true;
@@ -31,23 +34,42 @@ public class Main {
             }
             System.out.println(res);
         }
-    }
+    }*/
 
     public static void main(String[] args) {
         int port = 23456;
         System.out.println("Server started!");
+        System.out.println("Working Directory = " + System.getProperty("user.dir"));
         FileStorage fStorage = new FileStorage();
+        boolean exit = false;
         try (ServerSocket server = new ServerSocket(port)) {
-            try (Socket socket = server.accept();
-                DataInputStream input = new DataInputStream(socket.getInputStream());
-                DataOutputStream output = new DataOutputStream(socket.getOutputStream())
-            ) {
-                String msg = input.readUTF();
+            while(!exit) {
+                try (Socket socket = server.accept();
+                     DataInputStream input = new DataInputStream(socket.getInputStream());
+                     DataOutputStream output = new DataOutputStream(socket.getOutputStream())
+                ) {
+                    String[] msg = input.readUTF().split("//s+", 3);
+                    boolean serverResult = true;
+                    if (msg[0].equals("PUT")) {
+                        System.out.println("Receive PUT cmd");
+                        serverResult = fStorage.put(msg[1], msg[2]);
+                    } else if (msg[0].equals("GET")) {
+                        System.out.println("Receive GET cmd");
+                        FileStorage.FileContent cont = new FileStorage.FileContent();
+                        serverResult = fStorage.get(msg[1], cont);
+                    } else if (msg[0].equals("DELETE")) {
+                        System.out.println("Receive DELETE cmd");
+                        serverResult = fStorage.delete(msg[1]);
+                    } else if (msg[0].equals("exit")) {
+                        System.out.println("Receive exit cmd");
+                        exit = true;
+                    }
 
-                System.out.println("Received: " + msg);
-                String outMsg = "All files were sent!";
-                System.out.println("Sent: " + outMsg);
-                output.writeUTF(outMsg);
+                    if (serverResult)
+                        output.writeUTF(okCode);
+                    else
+                        output.writeUTF(errCode);
+                }
             }
         } catch (IOException ex)    {
             ex.printStackTrace();

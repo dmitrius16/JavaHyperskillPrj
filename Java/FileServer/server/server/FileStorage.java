@@ -8,14 +8,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class FileStorage {
-    private final String folderPath = "./server/data/";
+    private final String folderPath = ".\\server\\data";
     private List<String> fileNames = new LinkedList<>();
     private String createFullPath(String fileName) {
         return folderPath + fileName;
     }
     public FileStorage()
     {
-        File folder = new File(folderPath);
+        File folder = new File(System.getProperty("user.dir"));
         File[] lstFiles = folder.listFiles();
         for(File file : lstFiles) {
             if (file.isFile())
