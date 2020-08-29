@@ -1,0 +1,31 @@
+SQL - structured query language
+
+SQL data types:
+
+INTEGER - 2 ^ 31, one bit - is sign
+
+REAL - floating point number 
+
+DECIMAL - format DECIMAL(precision, scale), scale - count of digits in fractional part.
+            precision - total count of digits in the number
+
+TEXT - VARCHAR(n) this type represents a string of symbols of vatying length not longer than n.
+
+BOOLEAN
+
+
+CREATE TABLE Census (
+    id INTEGER, 
+    name VARCHAR(20),
+    birth_place_latitude REAL, 
+    year_income DECIMAL(20, 3),
+    is_parent BOOLEAN
+);
+
+One may see the following pattern:
+
+CREATE TABLE table_name (
+    column_name_1 column_type_1,
+    ...,
+    column_name_n column_type_n
+);
