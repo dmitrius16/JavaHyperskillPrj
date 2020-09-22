@@ -1,0 +1,12 @@
+The datetime module has several classes that make working with time easy:
+
+datetime.date - represents standard date;
+datetime.time - represents standard time, independent from the date;
+datetime.timedelta - represents the difference between two points in time;
+datetime.tzinfo - represents timezones;
+datetime.datetime - represents both time and date together.
+
+The constructor of the datetime.datetime objects takes the following parameters:
+import datetime
+
+datetime.datetime(year, month, day, hour=0, minute=0, second=0, microsecond=0, tzinfo=None)

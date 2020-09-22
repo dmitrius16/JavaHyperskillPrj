@@ -1,0 +1,85 @@
+python:            json:
+
+dict               object
+
+list, tuple        array
+
+str                string
+
+int, float         number
+
+True               true
+
+False              false
+
+None               null
+
+Generally, encoding to JSON format is called serialization. The json module has two methods for serializing:
+json.dump() and json.dumps(). The key difference between these two methods is the type we're serializing to:
+json.dump() creates a file-like object, and json.dumps() create a string.
+
+Suppose, we have a dictionary equivalent to the JSON:
+# Python dictionary 
+movie_dict = {
+  "movies": [
+    {
+      "title": "Inception",
+      "director": "Christopher Nolan",
+      "year": 2010
+    },
+    {
+      "title": "The Lord of the Rings: The Fellowship of the Ring",
+      "director": "Peter Jackson",
+      "year": 2001
+    },
+    {
+      "title": "Parasite",
+      "director": "Bong Joon Ho",
+      "year": 2019
+    }
+  ]
+}
+
+Here's how we can save it to the JSON file movies.json:
+
+with open("movies.json", "w") as json_file:
+    json.dump(movie_dict, json_file)
+
+
+json_str = json.dumps(movie_dict, ident=4)
+print(json_str)
+
+# json_str
+'{
+    "movies": [
+        {
+            "title": "Inception",
+            "director": "Christopher Nolan",
+            "year": 2010
+        },
+        {
+            "title": "The Lord of the Rings: The Fellowship of the Ring",
+            "director": "Peter Jackson",
+            "year": 2001
+        },
+        {
+            "title": "Parasite",
+            "director": "Bong Joon Ho",
+            "year": 2019
+        }
+    ]
+}'
+
+Decoding JSON -> Deserialization 
+json.load()
+json.loads()
+
+#from a file
+with open("movies.json", "r") as json_file:
+    movie_dict_from_json = json.load(json_file)
+
+print(movie_dict_from_json == movie_dict) #  True
+
+the same with json.loads()
+# from string
+print(movie_dict == json.loads(json_str))  # True

@@ -1,0 +1,119 @@
+The synchronized keyword:
+
+1. synchronized method (a static or an instance method)
+2. synchronized blocks or statements
+
+Example of class with a single synchronized static method names doSomething.
+
+class SomeClass {
+
+    public static synchronized void doSomething() {
+        String threadName = Thread.currentThread().getName();
+        System.out.println(String.format("%s entered the method", threadName));
+        System.out.println(String.format("%s leaves the method", threadName));
+    }
+}
+
+
+Method doSomething can be invoked only from one thread at the same time.
+-------------------------------------------------------------------------------------------------
+Instance synchronized methods 
+
+Example:
+class SomeClass {
+
+    private String name;
+
+    public SomeClass(String name) {
+        this.name = name;
+    }
+
+    public synchronized void doSomething() {
+
+        String threadName = Thread.currentThread().getName();
+        System.out.println(String.format("%s entered the method of %s", threadName, name));
+        System.out.println(String.format("%s leaves the method of %s", threadName, name));
+    }
+}
+
+Only one thread can execute code in a synchronized instance method of a particular instance. 
+But different threads can execute methods of different objects at the same time. 
+This can be summarized as "one thread per instance".
+
+SomeClass instance1 = new SomeClass("instance-1");
+SomeClass instance2 = new SomeClass("instance-2");
+
+MyThread first = new MyThread(instance1);
+MyThread second = new MyThread(instance1);
+MyThread third = new MyThread(instance2);
+
+first.start();
+second.start();
+third.start();
+
+Results:
+    Thread-0 entered the method of instance-1
+    Thread-2 entered the method of instance-2
+    Thread-0 leaves the method of instance-1
+    Thread-1 entered the method of instance-1
+    Thread-2 leaves the method of instance-2
+    Thread-1 leaves the method of instance-1
+-------------------------------------------------------------------------------------------------
+synchronized  blocks-> statements:
+
+Sometimes you need to synchronize only a part of a method. 
+This is possible by using synchronized blocks (statements). 
+They must specify an object for locking threads.
+
+Example:
+class SomeClass {
+
+    public static void staticMethod() {
+
+        // unsynchronized code
+                
+        synchronized (SomeClass.class) { // synchronization on the class
+            // synchronized code
+        }
+    }
+
+    public void instanceMethod() {
+
+        // unsynchronized code
+
+        synchronized (this) { // synchronization on this instance
+            // synchronized code
+        }
+    }
+}
+---------------------------------------------------------------------------------------------------
+Sometimes a class has several fields that are never used together. So no needs to use same monitor.
+To improve the concurrency rate it's possible to use an idiom with additional objects as monitors.
+
+class SomeClass {
+
+    private int numberOfCallingMethod1 = 0;
+    private int numberOfCallingMethod2 = 0;
+
+    final Object lock1 = new Object(); // an object for locking
+    final Object lock2 = new Object(); // another object for locking
+
+    public void method1() {
+        System.out.println("method1...");
+
+        synchronized (lock1) {
+            numberOfCallingMethod1++;
+        }
+    }
+
+    public void method2() {
+        System.out.println("method2...");
+        
+        synchronized (lock2) {
+            numberOfCallingMethod2++;
+        }
+    }
+}
+
+
+

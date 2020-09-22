@@ -1,0 +1,15 @@
+String literals - sequence of characters surrounded by single(') or double(").
+    Examples: 'Hyperskill', "SQL (Structured query language)"
+    To include a single-quote character within a string-literal, type two adjacent single quotes.
+    'Jessie''s birthday'
+
+Numeric literals - can be either positive or negative numbers specified as integer(for example, 1, +9000, -256)
+    ,decimal(for example, 2.3, +876.234, -1024.0), or real values in exponential notation (0.4e3, +7.192834e+10)
+
+
+We can directly specify the type of a literal using the CAST (value AS type) function.
+Examples: CAST(1 AS DECIMAL(20,3)), CAST(123.4 AS INTEGER),
+
+        select CAST(256 as DECIMAL(10,2))
+
+Boolean literals
