@@ -6,20 +6,27 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class FileStorage {
-    private final String folderPath = ".\\server\\data";
+    private final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
     private List<String> fileNames = new LinkedList<>();
     private String createFullPath(String fileName) {
         return folderPath + fileName;
     }
-    public FileStorage()
-    {
-        File folder = new File(System.getProperty("user.dir"));
-        File[] lstFiles = folder.listFiles();
-        for(File file : lstFiles) {
-            if (file.isFile())
-                fileNames.add(file.getName());
+    public FileStorage() {
+    //    System.out.println("Working directory: " + folderPath);
+        File folder = new File(folderPath);
+        if (folder.exists()) {
+            File[] lstFiles = folder.listFiles();
+            if (Objects.nonNull(lstFiles)) {
+                for (File file : lstFiles) {
+                    if (file.isFile())
+                        fileNames.add(file.getName());
+                }
+            }
+        } else {
+            folder.mkdirs();
         }
     }
 
@@ -27,40 +34,41 @@ public class FileStorage {
         return fileNames.contains(fileName);
     }
 
-    boolean put(String fileName, String content) {
+    ServerCode put(String fileName, String content) {
         //check if file exists
-        boolean result = false;
+        ServerCode result = ServerCode.FILE_EXIST;
         if (isFileExists(fileName) == false) {
             String fullFileName = createFullPath(fileName);
             fileNames.add(fileName);
             try (FileWriter fileWriter = new FileWriter(new File(fullFileName))) {
                 fileWriter.write(content);
-                result = true;
+                result = ServerCode.OK_CODE;
             }catch (IOException ex) {
                 ex.printStackTrace();
+                result = ServerCode.ERR_CODE;
             }
         }
         return result;
     }
 
-    boolean delete(String fileName) {
-        boolean result = false;
+    ServerCode delete(String fileName) {
+        ServerCode result = ServerCode.ERR_CODE;
         if (isFileExists(fileName)) {
             File file = new File(createFullPath(fileName));
-            result = file.delete();
-            if (result) {
+            if (file.delete()) {
                 fileNames.remove(fileName);
+                result = ServerCode.OK_CODE;
             }
         }
         return result;
     }
 
-    boolean get(String fileName, FileContent content){
-        boolean result = false;
+    ServerCode get(String fileName, FileContent content){
+        ServerCode result = ServerCode.ERR_CODE;
         if (isFileExists(fileName)) {
             try {
-                content.setContent(Files.readAllBytes(Paths.get(fileName)));
-                result = true;
+                content.setContent(Files.readAllBytes(Paths.get(createFullPath(fileName))));
+                result = ServerCode.OK_CODE;
             } catch (IOException | OutOfMemoryError ex) {
                 ex.printStackTrace();
             }
@@ -83,6 +91,16 @@ public class FileStorage {
         public String getContent() {
             return this.content;
         }
+    }
+
+    public enum ServerCode {
+        OK_CODE("200"),
+        FILE_EXIST("403"),
+        ERR_CODE("404");
+
+        private String repr;
+        ServerCode(String strVal) {repr = strVal;}
+        String getRepr() {return repr;}
     }
 
 }
