@@ -1,0 +1,26 @@
+STRING Expression:
+SQL support a variety of functions to process text values: let's discuss some of them.
+
+Note: This syntax get from PostgresSQL
+
+1. concat(s_l, s_r) returns concatenation Example: concat("Hyper", "skill") --> HyperSkill
+2. char_length(s) count number of characters in argument s Example: char_length('apple') -> 5
+3. reverse(s) - reverses string Example reverse('Madam, I'm Adam) -> madAm m'I ,madAm
+4. replace(s_in, s_what, s_with) Example replace('abracadabra') -> 'acada'
+5. substr - return sub string Example('Hello, data!', 8, 4) return 'data'
+
+Logic Expression:
+NOT, AND, OR
+
+Comparisons:
+= (equality check)
+< (less), > (greater)
+<= (less or equal), >=(greater or equal)
+<> (not equal)
+
+Make calculations:
+
+Select (2+2)*15 -> 60
+
+
+
