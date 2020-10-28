@@ -1,0 +1,29 @@
+To create database, you can uses CREATE DATABASE statement.
+Let's create an empty database that stores information about university students and name it students:
+
+CREATE DATABASE students;
+
+Let's keep working with our students database and create a table students_info that will contain
+four column: students_id, name, surname age.
+
+CREATE TABLE students_info (
+    students_id INT,
+    name VARCHAR(30),
+    surname VARCHAR(30),
+    age INT
+);
+
+As a result, we have an empty taable students_info
+
++----------+----------+------------+------------+
+|student_id|   name   |  surname   |   age      |
++----------+----------+------------+------------+
+
+
+
+Drop a database
+
+To delete a database, use DROP DATABASE statement:
+
+DROP DATABASE students;
+

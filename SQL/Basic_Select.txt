@@ -1,0 +1,18 @@
+Tuple:
+
+Select 'Alice', 170, 170 * 0.393701;
+
+Alias
+
+Select 'Alice' as name, 
+        170 as heigh_in_centimeters,
+        170 * 0.393701 as "heigh in inches"
+
+In a query you may specify a name(alias) for each attribute of a tuple.
+To do so, you should use a keyword AS followed by a name for the value.
+If the attribute alias consists of several words or matches an SQL keyword, 
+it should be stated in double-quotes.
+
+Here is template for a basic SELECT statement:
+
+SELECT val1 [AS name1],..., valN [AS nameN];

@@ -1,0 +1,31 @@
+Template:
+
+SELECT 
+    col1 [AS alias1], ..., colN [AS aliasN]
+FROM
+    table_name;
+    
+    
+SELECT FROM WHERE statement:
+
+Let's imagine that your first client wants to buy a good book by Charles Dickens for a friend
+who speaks French and English. Let's write a query that selects books that meet the criteria:
+
+SELECT
+    id, 
+    title, 
+    author,
+    language,
+    rating,
+    price,
+    amount
+FROM
+    books
+WHERE
+    author = 'Charles Dickens'
+    AND (language = 'EN' OR language = 'FR')
+    AND rating > 4.0
+    AND amount > 0
+    ;
+    
+    
