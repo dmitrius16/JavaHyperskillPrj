@@ -1,0 +1,122 @@
+Sometimes we need to modify out table: add a new column, drop the existing one or change
+the column type. 
+
+We can create a new table with all these changes and delete the previous one, but it's easy
+to lose data during this process. 
+
+ALTER TABLE statement - allow modify existing tables. It can be used to create, delete or change
+the type of columns.
+___________________________________________
+Adding a new column:
+
+There is a table employees that looks as follows:
+
++------------+-----------+-------------+
+| first_name | last_name | native_city |
++------------+-----------+-------------+
+| John       |  Tomas    | York        |
++------------+-----------+-------------+
+| Davis      |  Palmer   | Tallin      |
++------------+-----------+-------------+
+| Lora       |  Smith    | Chikago     |
++------------+-----------+-------------+
+
+Table doesn't store any contact information, but it would be great if we actually
+had everyone's contact emails.
+
+ALTER TABLE employees 
+ADD COLUMN employee_email VARCHAR(10);
+
++------------+-----------+-------------+----------------+
+| first_name | last_name | native_city | employee_email |
++------------+-----------+-------------+----------------+
+| John       |  Tomas    | York        |                |
++------------+-----------+-------------+----------------+
+| Davis      |  Palmer   | Tallin      |                |
++------------+-----------+-------------+----------------+
+| Lora       |  Smith    | Chikago     |                |
++------------+-----------+-------------+----------------+
+
+___________________________________________
+Changing the data type - ALTER TABLE statement and MODIFY COLUMN
+
+ALTER TABLE employees
+MODIFY COLUMN employee_email VARCHAR(45)
+
++------------+-----------+-------------+----------------------------+
+| first_name | last_name | native_city | employee_email             |
++------------+-----------+-------------+----------------------------+
+| John       |  Tomas    | York        |johntomasyork@emailservice. |
+|            |           |             |        com                 |
++------------+-----------+-------------+----------------------------+
+| Davis      |  Palmer   | Tallin      |                            |
++------------+-----------+-------------+----------------------------+
+| Lora       |  Smith    | Chikago     |                            |
++------------+-----------+-------------+----------------------------+
+
+NOTE: it's syntax MYSQL for changing the data type!
+
+___________________________________________________
+Dropping an existing column
+
+For the sake of conciseness, let's get rid of column - native_city
+
+ALTER TABLE employees
+DROP COLUMN native_city
+
++------------+-----------+----------------------------+
+| first_name | last_name | employee_email             |
++------------+-----------+----------------------------+
+| John       |  Tomas    |johntomasyork@emailservice. |
+|            |           |        com                 |
++------------+-----------+----------------------------+
+| Davis      |  Palmer   |                            |
++------------+-----------+----------------------------+
+| Lora       |  Smith    |                            |
++------------+-----------+----------------------------+
+
+_______________________________________________________
+Renaming a columns 
+We can change the column name employee_email since it is clear that stored emails belong to employees.
+
+ALTER TABLE employees 
+CHANGE employee_email email VARCHAR(45)
+
++------------+-----------+----------------------------+
+| first_name | last_name |          email             |
++------------+-----------+----------------------------+
+| John       |  Tomas    |johntomasyork@emailservice. |
+|            |           |        com                 |
++------------+-----------+----------------------------+
+| Davis      |  Palmer   |                            |
++------------+-----------+----------------------------+
+| Lora       |  Smith    |                            |
++------------+-----------+----------------------------+
+
+__________________________________________________________
+Summary:
+
+1. add new column
+
+ALTER TABLE table_name
+ADD COLUMN column_name DATATYPE;
+
+2. delete column from the table
+
+ALTER TABLE table_name
+DROP COLUMN column_name;
+
+3. change the column type
+
+ALTER TABLE table_name
+MODIFY COLUMN column_name NEWDATATYPE;
+
+4. change the column name
+
+ALTER TABLE table_name
+CHANGE old_column_name new_column_name NEWDATATYPE;
+
+
+
+
+

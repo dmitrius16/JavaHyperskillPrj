@@ -1,0 +1,30 @@
+CREATE TABLE winners (
+year INTEGER NOT NULL,
+field VARCHAR(20) NOT NULL,
+winner_name VARCHAR(100) NOT NULL, 
+winner_birth_year INTEGER);
+
+
+
+NULL value basically means "could be anything". Because of this, comparisons with NULL
+can never result in either TRUE or FALSE, but always in a third logical result, UNKNOWN.
+
+UNKNOWN is, actually, the NULL value of boolean type and some data management systems do not
+distinguish a special UNKNOWN value.
+
+For example, the result of each of the following comparisons is UNKNOWN:
+NULL = 1
+NULL <> 1
+NULL > 1
+NULL = '1'
+NULL = NULL
+
+SQL support special predicates for that: IS NULL and IS NOT NULL
+
+SELECT 0+NULL is NULL; --> TRUE
+
+SELECT '' is NOT NULL; --> TRUE
+
+SELECT NULL IS NOT NULL; --> FALSE
+
+SELECT 1-1 IS NULL; --> FALSE
