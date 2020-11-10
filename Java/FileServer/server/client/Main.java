@@ -1,17 +1,19 @@
 package client;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.InetAddress;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Main {
-    private static final String menu = "Enter action (1 - get the file, 2 - create a file, 3 - delete the file):";
-    private static final String enterFileName = "Enter file name: ";
+    private static final String menu = "Enter action (1 - get the file, 2 - save the file, 3 - delete the file):";
+    private static final String enterFileName = "Enter name of the file: ";
     private static final String requestSend = "The request was sent.";
     private static final String okResponseSays = "Ok, the response says that the file was ";
     private static final String errCodeUndef = "Error, undefined received code";
+
+    private static final int CHUNK_SIZE = 4096;
 
     private static Socket socket;
     private static DataInputStream input;
@@ -20,11 +22,11 @@ public class Main {
     private static String getFileRequest(String fileName) throws IOException {
         output.writeUTF("GET " + fileName);
         System.out.println(requestSend);
-        String[] res = input.readUTF().split("\\s+", 2);
+        String[] res = input.readUTF().split("\\s+");
         if (res[0].equals("404")) {
             return okResponseSays + "not found!";
         } else if (res[0].equals("200")) {
-            String temp_res = "Ok, the content of the file is: ";
+            String temp_res = "Ok, the content of the file is:\n";
             if(res.length > 1) {
                 temp_res += res[1];
             }
@@ -47,20 +49,28 @@ public class Main {
         }
     }
 
-    private static String putFileRequest(String fileName, String fileContent) throws IOException {
+    private static String putFileRequest(String fileName) throws IOException {
         StringBuilder sb = new StringBuilder("PUT ")
                             .append(fileName)
-                            .append(" ")
-                            .append(fileContent);
-        output.writeUTF(sb.toString());
-        System.out.println(requestSend);
-        String res = input.readUTF();
-        if (res.equals("200")) {
-            return okResponseSays + "created!";
-        } else if (res.equals("403")) {
-            return "Ok, the response says that creating the file was forbidden!";
+                            .append(" ");
+                            //.append(fileContent);
+
+        String path = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\";
+        File file = new File(path + fileName);
+        if (file.exists()) {
+            byte[] storage = new byte[CHUNK_SIZE];
+            FileInputStream readFile = new FileInputStream(file);
+            int numSendBytes = readFile.available();
+            output.writeInt(numSendBytes);
+            int rdBytes = 0;
+            System.out.println("Size of readed file: " + numSendBytes);
+            while ((rdBytes = readFile.read(storage)) != - 1) {
+                output.write(storage);
+            }
+            return "";
         } else {
-            return errCodeUndef;
+            System.out.println("File not found");
+            return "";
         }
     }
 
@@ -70,46 +80,29 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println(menu);
-///        boolean exit = false;
         try
         {
-            //while(!exit) {
-                String usrInp = scanner.nextLine();
-                try {
-                    int menuItem = Integer.parseInt(usrInp);
-                    String result = "";
-                    String fileName = "";
-                    if (menuItem >= 1 && menuItem <= 3) {
-                        System.out.print(enterFileName);
-                        fileName = scanner.nextLine();
-                    }
-                    switch (menuItem) {
-                        case 1:
-                            result = getFileRequest(fileName);
-                            break;
-                        case 3:
-                            result = deleteFileRequest(fileName);
-                            break;
-                        case 2:
-                            System.out.print("Enter file content: ");
-                            String fileCont = scanner.nextLine();
-                            result = putFileRequest(fileName, fileCont);
-                            break;
-                        default:
-                            result = "Choose correct item!";
-                            break;
-                    }
-                    System.out.println(result);
-                } catch(NumberFormatException ex) {
-                    if (usrInp.equals("exit")) {
-                    //    exit = true;
-                        output.writeUTF("exit");
-                        output.flush(); //!!!
-                    } else {
-                        System.out.println("Not valid number! Try again");
-                    }
-                }
-           // }
+            int menuItem = Integer.parseInt(scanner.nextLine());
+
+
+            String result = "";
+            switch(menuItem) {
+                case 1:
+                    //result = getFileRequest(fileName);
+                    break;
+                case 3:
+                    //result = deleteFileRequest(fileName);
+                    break;
+                case 2:
+                    System.out.print(enterFileName);
+                    String fileName = scanner.nextLine();
+                    result = putFileRequest(fileName);
+                    break;
+                default:
+                    result = "Choose correct item!";
+                    break;
+            }
+            System.out.println(result);
         }
         catch (IOException ex) {
                 ex.printStackTrace();
@@ -122,9 +115,9 @@ public class Main {
         int port = 23456;
 
         try {
-            socket = new Socket(InetAddress.getByName(address), port);
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
+         //   socket = new Socket(InetAddress.getByName(address), port);
+         //   input = new DataInputStream(socket.getInputStream());
+         //   output = new DataOutputStream(socket.getOutputStream());
             HandleMenu();
 
             socket.close();

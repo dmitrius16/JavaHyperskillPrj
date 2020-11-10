@@ -1,57 +1,92 @@
 package server;
-import java.io.IOException;
-import java.util.List;
-import java.util.LinkedList;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
+import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Objects;
+
+enum ServerCode {
+    OK_CODE("200"),
+    FILE_EXIST("403"),
+    ERR_CODE("404");
+
+    private String repr;
+    ServerCode(String strVal) {repr = strVal;}
+    String getRepr() {return repr;}
+}
+
+class ServerRespond {
+    private ServerCode code;
+    private String additional_info;
+    public ServerRespond(ServerCode code) {
+        this.code = code;
+        this.additional_info = "";
+    }
+    public ServerRespond(ServerCode code, int id) {
+        this.code = code;
+        this.additional_info = Integer.toString(id);
+    }
+
+    ServerCode getCode() {return code;}
+
+    public String toString() {
+        return code.getRepr() + " " + additional_info;
+    }
+}
 
 public class FileStorage {
     private final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
-    private List<String> fileNames = new LinkedList<>();
+    private IdToNameMapper fileNames; 
     private String createFullPath(String fileName) {
-        return folderPath + fileName;
+        return folderPath + "\\" + fileName;
     }
     public FileStorage() {
-    //    System.out.println("Working directory: " + folderPath);
         File folder = new File(folderPath);
-        if (folder.exists()) {
-            File[] lstFiles = folder.listFiles();
-            if (Objects.nonNull(lstFiles)) {
-                for (File file : lstFiles) {
-                    if (file.isFile())
-                        fileNames.add(file.getName());
-                }
-            }
-        } else {
-            folder.mkdirs();
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("id2map.dat"))) {
+            fileNames = (IdToNameMapper)ois.readObject();
+        } catch(Exception ex) {
+            System.out.println("Id2Map corrupted");
+            fileNames = new IdToNameMapper();
         }
     }
 
-    public boolean isFileExists(String fileName) {
-        return fileNames.contains(fileName);
+    public boolean isFileExists(String fileName)
+    {
+        return fileNames.isExist(fileName);
     }
 
-    ServerCode put(String fileName, String content) {
+    public boolean isFileExists(int id) {
+        return fileNames.isExist(id);
+    }
+
+    public void saveFileNamesInfo() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("id2map.dat"))) {
+            oos.writeObject(fileNames);
+        } catch (Exception ex) {
+            System.out.print("Can't save file names info. All data will be lost");
+        }
+    }
+
+    public ServerRespond put(String fileName, String content) {
         //check if file exists
         ServerCode result = ServerCode.FILE_EXIST;
+        int id = 0;
         if (isFileExists(fileName) == false) {
             String fullFileName = createFullPath(fileName);
-            fileNames.add(fileName);
-            try (FileWriter fileWriter = new FileWriter(new File(fullFileName))) {
-                fileWriter.write(content);
-                result = ServerCode.OK_CODE;
-            }catch (IOException ex) {
-                ex.printStackTrace();
-                result = ServerCode.ERR_CODE;
+            id = fileNames.add(fileName);
+            if (id != 0) {
+                try (FileWriter fileWriter = new FileWriter(new File(fullFileName))) {
+                    fileWriter.write(content);
+                    result = ServerCode.OK_CODE;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    result = ServerCode.ERR_CODE;
+                }
             }
         }
-        return result;
+        return new ServerRespond(result, id);
     }
 
-    ServerCode delete(String fileName) {
+    public ServerRespond delete(String fileName) {
         ServerCode result = ServerCode.ERR_CODE;
         if (isFileExists(fileName)) {
             File file = new File(createFullPath(fileName));
@@ -60,10 +95,10 @@ public class FileStorage {
                 result = ServerCode.OK_CODE;
             }
         }
-        return result;
+        return new ServerRespond(result);
     }
 
-    ServerCode get(String fileName, FileContent content){
+    public ServerRespond get(String fileName, FileContent content) {
         ServerCode result = ServerCode.ERR_CODE;
         if (isFileExists(fileName)) {
             try {
@@ -73,7 +108,19 @@ public class FileStorage {
                 ex.printStackTrace();
             }
         }
-        return result;
+        return new ServerRespond(result);
+    }
+
+    public ServerRespond get(int id, FileContent content) {
+        return get(fileNames.getFileNameFromId(id), content);
+    }
+
+    public String getFileNameFromId(int id) {
+        return fileNames.getFileNameFromId(id);
+    }
+
+    public int getFileIdFromName(String name) {
+        return fileNames.getIdFromFileName(name);
     }
 
     public static class FileContent {
@@ -92,15 +139,4 @@ public class FileStorage {
             return this.content;
         }
     }
-
-    public enum ServerCode {
-        OK_CODE("200"),
-        FILE_EXIST("403"),
-        ERR_CODE("404");
-
-        private String repr;
-        ServerCode(String strVal) {repr = strVal;}
-        String getRepr() {return repr;}
-    }
-
 }
