@@ -3,6 +3,8 @@ import java.io.*;
 import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 enum ServerCode {
     OK_CODE("200"),
@@ -35,7 +37,10 @@ class ServerRespond {
 
 public class FileStorage {
     private final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
-    private IdToNameMapper fileNames; 
+    private final int CHUNK_SIZE = 4096;
+    private IdToNameMapper fileNames;
+    private byte[] rxBuffer;
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
     private String createFullPath(String fileName) {
         return folderPath + "\\" + fileName;
     }
@@ -47,6 +52,7 @@ public class FileStorage {
             System.out.println("Id2Map corrupted");
             fileNames = new IdToNameMapper();
         }
+        rxBuffer = new byte[CHUNK_SIZE];
     }
 
     public boolean isFileExists(String fileName)
@@ -66,16 +72,29 @@ public class FileStorage {
         }
     }
 
-    public ServerRespond put(String fileName, String content) {
+    public ServerRespond put(String fileName, DataInputStream input) {
         //check if file exists
         ServerCode result = ServerCode.FILE_EXIST;
         int id = 0;
+        if (fileName.isEmpty()) {
+            fileName = dtf.format(LocalDateTime.now());
+        }
+
+        // TODO move to separate class
         if (isFileExists(fileName) == false) {
             String fullFileName = createFullPath(fileName);
             id = fileNames.add(fileName);
             if (id != 0) {
-                try (FileWriter fileWriter = new FileWriter(new File(fullFileName))) {
-                    fileWriter.write(content);
+                try (FileOutputStream fileOutput = new FileOutputStream(new File(fullFileName))) {
+                    int rxSize = 0;
+                    int sizeFile = input.readInt();
+                    while(rxSize < sizeFile) {
+                        int rxBytes = input.read(rxBuffer);
+                        if (rxBytes == -1)
+                            break;
+                        rxSize += rxBytes;
+                        fileOutput.write(rxBuffer,0, rxBytes);
+                    }
                     result = ServerCode.OK_CODE;
                 } catch (IOException ex) {
                     ex.printStackTrace();

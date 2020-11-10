@@ -38,8 +38,9 @@ public class Main {
                     ServerRespond respond = null;
                     String result = "";
                     if (msg[0].equals("PUT")) {
-                        respond = fStorage.put(msg[1], msg[2]);
-                        //result = resultString(serverResult, null);
+                        respond = fStorage.put(msg[1], input);
+
+
                     } else if (msg[0].equals("GET")) {
                         FileStorage.FileContent cont = new FileStorage.FileContent();
                         respond = fStorage.get(msg[1], cont);
