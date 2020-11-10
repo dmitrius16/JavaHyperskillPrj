@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class Main {
     private static final String menu = "Enter action (1 - get the file, 2 - save the file, 3 - delete the file):";
     private static final String enterFileName = "Enter name of the file: ";
+    private static final String enterFileNameOnServer = "Enter name of the file to be saved on server:";
     private static final String requestSend = "The request was sent.";
     private static final String okResponseSays = "Ok, the response says that the file was ";
     private static final String errCodeUndef = "Error, undefined received code";
@@ -49,32 +50,31 @@ public class Main {
         }
     }
 
-    private static String putFileRequest(String fileName) throws IOException {
+    private static String putFileRequest(String fileName, String serverFileName) throws IOException {
         StringBuilder sb = new StringBuilder("PUT ")
                             .append(fileName)
                             .append(" ");
-                            //.append(fileContent);
-
         String path = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\";
         File file = new File(path + fileName);
+        String result = "";
         if (file.exists()) {
             byte[] storage = new byte[CHUNK_SIZE];
             FileInputStream readFile = new FileInputStream(file);
+            output.writeUTF("PUT " + serverFileName);
             int numSendBytes = readFile.available();
             output.writeInt(numSendBytes);
             int rdBytes = 0;
             System.out.println("Size of readed file: " + numSendBytes);
             while ((rdBytes = readFile.read(storage)) != - 1) {
-                output.write(storage);
+                output.write(storage, 0 ,rdBytes);
             }
-            return "";
+            result = input.readUTF();
+
         } else {
-            System.out.println("File not found");
-            return "";
+            System.out.println("File not found on the client side");
         }
+        return result;
     }
-
-
 
     public static void HandleMenu() {
 
@@ -84,8 +84,6 @@ public class Main {
         {
             int menuItem = Integer.parseInt(scanner.nextLine());
 
-
-            String result = "";
             switch(menuItem) {
                 case 1:
                     //result = getFileRequest(fileName);
@@ -96,13 +94,18 @@ public class Main {
                 case 2:
                     System.out.print(enterFileName);
                     String fileName = scanner.nextLine();
-                    result = putFileRequest(fileName);
+                    System.out.print(enterFileNameOnServer);
+                    String serverFileName = scanner.nextLine();
+                    String serverAnswer = putFileRequest(fileName, serverFileName);
+                    String[] res = serverAnswer.split("\\s+");
+                    if (res[0].equals("200")) {
+                        System.out.println("Response says that file is saved! ID = " + res[1]);
+                    }
                     break;
                 default:
-                    result = "Choose correct item!";
+                    System.out.println("Choose correct item!");
                     break;
             }
-            System.out.println(result);
         }
         catch (IOException ex) {
                 ex.printStackTrace();
@@ -115,9 +118,9 @@ public class Main {
         int port = 23456;
 
         try {
-         //   socket = new Socket(InetAddress.getByName(address), port);
-         //   input = new DataInputStream(socket.getInputStream());
-         //   output = new DataOutputStream(socket.getOutputStream());
+            socket = new Socket(InetAddress.getByName(address), port);
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
             HandleMenu();
 
             socket.close();
