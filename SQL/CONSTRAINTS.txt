@@ -1,0 +1,100 @@
+The most common constraints are NOT NULL, UNIQUE, CHECK, DEFAULT, PRIMARY KEY and FOREIGN KEY
+
+Assume that we've created a table employees with columns personal_id, first_name, last_name and age:
+
+CREATE TABLE employees (
+    personal_id INT,
+    first_name VARCHAR(30), 
+    last_name VARCHAR(30),
+    age INT
+    );
+
+Let's modify this simple table and add some constraints to it.
+___________________________________________________________________
+1. Make the age column a not null one:
+
+ALTER TABLE employees
+MODIFY age INT NOT NULL;
+
+if you want remove this constraints use following
+
+ALTER TABLE employees
+MODDIFY age INT;
+
+We can also use this constraints int the CREATE TABLE statement:
+
+CREATE TABLE employees (
+    personal_id INT, 
+    first_name VARCHAR(30),
+    last_name VARCHAR(30),
+    age INT NOT NULL
+    );
+_____________________________________________________________________
+2. UNIQUE
+The UNIQUE constraints will prohibit adding duplicate values to the column.
+We know that the employee identifier should be unique, so we can add this constaint to the column personal_id
+
+CREATE TABLE employees (
+    personal_id INT UNIQUE,
+    first_naem VARCHAR(30),
+    last_name VARCHAR(30),
+    age INT
+    );
+
+add UNIQUE using ALTER TABLE:
+
+ALTER TABLE employees
+ADD UNIQUE (personal_id);
+
+Sometimes we have to make more than one column unique. In this case, we can define
+a named constaint at the end of the CREATE TABLE statement:
+
+CREATE TABLE employees (
+    personal_id INT,
+    first_name VARCHAR(30),
+    last_name VARCHAR(30),
+    age INT,
+    CONSTRAINT uq_id_last_name UNIQUE(personal_id, last_name)
+    );
+
+To drop a named constraint, you can also use ALTER TABLE DROP INDEX statement:
+
+ALTER TABLE employees
+DROP INDEX uq_id_last_name;
+_____________________________________________________________________
+3. CHECK constraint
+
+The CHECK constraint allows us to add logical expression. For example, we can say
+that all our employees should be older than sixteen:
+
+CREATE TABLE employees ( 
+    personal_id INT,
+    first_name VARCHAR(30),
+    last_name VARCHAR(30),
+    age INT CHECK (age > 16)
+    );
+
+if we want to add this constraint to an existing table, we can use ALTER TABLE ADD CHECK.
+The syntax will be the same as with the UNIQUE constraint.
+
+To drop an unnamed CHECK, use ALTER TABLE DROP CHECK
+
+ALTER TABLE employees
+DROP CHECK age;
+
+CHECK constaint can be named and assigned to multiple columns. Named CHECK defined as well as UNIQUE see above.
+We can also use ALTER TABLE ADD CONSTRAINT statement and add a named CHECK constraint for one or multiple columns to 
+an existing table with the following query:
+
+ALTER TABLE employees
+ADD CONSTRAINT chk_employee CHECK (age > 16 AND personal_id > 0)
+
+The ALTER TABLE ADD CONSTRAINT statement can be used to add both the CHECK constraint and named UNIQUE constraint.
+
+To delete a named CHECK constraint, you can use ALTER TABLE DROP CHECK statement.
+
+
+
+
+
+
