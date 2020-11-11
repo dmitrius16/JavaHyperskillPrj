@@ -2,19 +2,23 @@ package client;
 import java.io.*;
 import java.net.Socket;
 import java.net.InetAddress;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
+
+import common.ClientServer;
+
+
 
 public class Main {
     private static final String menu = "Enter action (1 - get the file, 2 - save the file, 3 - delete the file):";
     private static final String enterFileName = "Enter name of the file: ";
     private static final String enterFileNameOnServer = "Enter name of the file to be saved on server:";
+    private static final String getFileFromNameOrId = "Do you want to get the file by name or by id (1 - name, 2 - id):";
     private static final String requestSend = "The request was sent.";
     private static final String okResponseSays = "Ok, the response says that the file was ";
     private static final String errCodeUndef = "Error, undefined received code";
 
-    private static final int CHUNK_SIZE = 4096;
+    private static final int CHUNK_SIZE = ClientServer.CHUNK_SIZE;
 
     private static Socket socket;
     private static DataInputStream input;
@@ -23,6 +27,7 @@ public class Main {
     private static String getFileRequest(String fileName) throws IOException {
         output.writeUTF("GET " + fileName);
         System.out.println(requestSend);
+
         String[] res = input.readUTF().split("\\s+");
         if (res[0].equals("404")) {
             return okResponseSays + "not found!";
@@ -76,7 +81,31 @@ public class Main {
         return result;
     }
 
-    public static void HandleMenu() {
+    private static int inputNumber(Scanner usrInput) {
+        String errMsg = "Incorrect input! You have to input number, try again.";
+        while(true) {
+            try {
+                int result = Integer.parseInt(usrInput.nextLine());
+                    return result;
+            } catch (NumberFormatException ex) {
+                System.out.println(errMsg);
+            }
+        }
+    }
+
+
+    private static int chooseHowGetOrDeleteFile(Scanner usrInput) {
+        while(true) {
+            int result = inputNumber(usrInput);
+            if (result == 1 || result == 2) {
+                return result;
+            } else {
+                System.out.println("Number must be equal either 1 or 2, try again.");
+            }
+        }
+    }
+
+    public static void handleMenu() {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println(menu);
@@ -86,10 +115,13 @@ public class Main {
 
             switch(menuItem) {
                 case 1:
-                    //result = getFileRequest(fileName);
-                    break;
-                case 3:
-                    //result = deleteFileRequest(fileName);
+                    System.out.println(getFileFromNameOrId);
+                    int item = chooseHowGetOrDeleteFile(scanner);
+                    System.out.printf("Enter %s: ", item == 1 ? "name" : "id");
+                    if (item == 2) {
+                        Integer id = inputNumber(scanner);
+                        getFileRequest(id.toString())
+                    }
                     break;
                 case 2:
                     System.out.print(enterFileName);
@@ -101,6 +133,9 @@ public class Main {
                     if (res[0].equals("200")) {
                         System.out.println("Response says that file is saved! ID = " + res[1]);
                     }
+                    break;
+                case 3:
+                    //result = deleteFileRequest(fileName);
                     break;
                 default:
                     System.out.println("Choose correct item!");

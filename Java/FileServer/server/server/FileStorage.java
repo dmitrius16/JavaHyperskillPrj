@@ -1,45 +1,18 @@
 package server;
+
 import java.io.*;
-import java.util.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-enum ServerCode {
-    OK_CODE("200"),
-    FILE_EXIST("403"),
-    ERR_CODE("404");
-
-    private String repr;
-    ServerCode(String strVal) {repr = strVal;}
-    String getRepr() {return repr;}
-}
-
-class ServerRespond {
-    private ServerCode code;
-    private String additional_info;
-    public ServerRespond(ServerCode code) {
-        this.code = code;
-        this.additional_info = "";
-    }
-    public ServerRespond(ServerCode code, int id) {
-        this.code = code;
-        this.additional_info = Integer.toString(id);
-    }
-
-    ServerCode getCode() {return code;}
-
-    public String toString() {
-        return code.getRepr() + " " + additional_info;
-    }
-}
+import common.ClientServer;
+import common.ClientServer.ServerRespond;
+import common.ClientServer.ServerCode;
 
 public class FileStorage {
     private final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
-    private final int CHUNK_SIZE = 4096;
     private IdToNameMapper fileNames;
-    private byte[] rxBuffer;
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
     private String createFullPath(String fileName) {
         return folderPath + "\\" + fileName;
@@ -52,7 +25,6 @@ public class FileStorage {
             System.out.println("Id2Map corrupted");
             fileNames = new IdToNameMapper();
         }
-        rxBuffer = new byte[CHUNK_SIZE];
     }
 
     public boolean isFileExists(String fileName)
@@ -80,27 +52,14 @@ public class FileStorage {
             fileName = dtf.format(LocalDateTime.now());
         }
 
-        // TODO move to separate class
-        if (isFileExists(fileName) == false) {
-            String fullFileName = createFullPath(fileName);
-            id = fileNames.add(fileName);
-            if (id != 0) {
-                try (FileOutputStream fileOutput = new FileOutputStream(new File(fullFileName))) {
-                    int rxSize = 0;
-                    int sizeFile = input.readInt();
-                    while(rxSize < sizeFile) {
-                        int rxBytes = input.read(rxBuffer);
-                        if (rxBytes == -1)
-                            break;
-                        rxSize += rxBytes;
-                        fileOutput.write(rxBuffer,0, rxBytes);
-                    }
-                    result = ServerCode.OK_CODE;
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    result = ServerCode.ERR_CODE;
-                }
-            }
+        if (isFileExists(fileName))
+            return new ServerRespond(result);
+
+        String fullFileName = createFullPath(fileName);
+        id = fileNames.add(fileName);
+
+        if (id != 0) {
+            result = ClientServer.receiveFile(fullFileName, input) ? ServerCode.OK_CODE : ServerCode.ERR_CODE;
         }
         return new ServerRespond(result, id);
     }
@@ -141,7 +100,7 @@ public class FileStorage {
     public int getFileIdFromName(String name) {
         return fileNames.getIdFromFileName(name);
     }
-
+/*
     public static class FileContent {
         private String content = "";
 
@@ -158,4 +117,5 @@ public class FileStorage {
             return this.content;
         }
     }
+ */
 }
