@@ -23,36 +23,44 @@ public class Main {
         boolean exit = false;
         try (ServerSocket server = new ServerSocket(port)) {
             while (!exit) {
-                try (Socket socket = server.accept();
-                     DataInputStream input = new DataInputStream(socket.getInputStream());
-                     DataOutputStream output = new DataOutputStream(socket.getOutputStream())) {
-
-                    String[] msg = input.readUTF().split("\\s+", 3);
-                    ServerRespond respond = null;
-                    String result = "";
-                    if (msg[0].equals("PUT")) {
-                        respond = fStorage.put(msg[1], input);
-
-
-                    } else if (msg[0].equals("GET")) {
-                        FileStorage.FileContent cont = new FileStorage.FileContent();
-                        respond = fStorage.get(msg[1], cont);
-
-                    } else if (msg[0].equals("DELETE")) {
-                        respond = fStorage.delete(msg[1]);
-
-                    } else if (msg[0].equals("exit")) {
-
-                        exit = true;
-                        continue;
-                    }
-                    if(Objects.nonNull(respond)) {
-                        output.writeUTF(respond.toString());
-                    }
+                try (Socket socket = server.accept()) {
+                    exit = serverTask(socket, fStorage);
                 }
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
+
+    public static boolean serverTask(Socket sock, FileStorage fStorage) {
+        try (DataInputStream input = new DataInputStream(sock.getInputStream());
+             DataOutputStream output = new DataOutputStream(sock.getOutputStream())) {
+
+            String[] msg = input.readUTF().split("\\s+", 3);
+            ServerRespond respond = null;
+            String result = "";
+            if (msg[0].equals("PUT")) {
+                respond = fStorage.put(msg[1], input);
+
+
+            } else if (msg[0].equals("GET")) {
+             //   FileStorage.FileContent cont = new FileStorage.FileContent();
+             //   respond = fStorage.get(msg[1], cont);
+
+            } else if (msg[0].equals("DELETE")) {
+                respond = fStorage.delete(msg[1]);
+
+            } else if (msg[0].equals("exit")) {
+                return false;
+            }
+            if(Objects.nonNull(respond)) {
+                output.writeUTF(respond.toString());
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return true;
+    }
+
 }

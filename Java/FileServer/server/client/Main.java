@@ -24,6 +24,8 @@ public class Main {
     private static DataInputStream input;
     private static DataOutputStream output;
 
+    private static ClientServer rxtxTask = new ClientServer();
+
     private static String getFileRequest(String fileName) throws IOException {
         output.writeUTF("GET " + fileName);
         System.out.println(requestSend);
@@ -60,21 +62,14 @@ public class Main {
                             .append(fileName)
                             .append(" ");
         String path = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\";
+
         File file = new File(path + fileName);
         String result = "";
         if (file.exists()) {
-            byte[] storage = new byte[CHUNK_SIZE];
             FileInputStream readFile = new FileInputStream(file);
             output.writeUTF("PUT " + serverFileName);
-            int numSendBytes = readFile.available();
-            output.writeInt(numSendBytes);
-            int rdBytes = 0;
-            System.out.println("Size of readed file: " + numSendBytes);
-            while ((rdBytes = readFile.read(storage)) != - 1) {
-                output.write(storage, 0 ,rdBytes);
-            }
+            rxtxTask.transmitFile(readFile, output);
             result = input.readUTF();
-
         } else {
             System.out.println("File not found on the client side");
         }

@@ -48,19 +48,24 @@ public class FileStorage {
         //check if file exists
         ServerCode result = ServerCode.FILE_EXIST;
         int id = 0;
-        if (fileName.isEmpty()) {
-            fileName = dtf.format(LocalDateTime.now());
-        }
 
-        if (isFileExists(fileName))
+        if (fileName.isEmpty()) {
+            do {
+                fileName = dtf.format(LocalDateTime.now());
+                // not so beautiful as I want
+            } while (isFileExists(fileName));
+        } else if (isFileExists(fileName)) {
             return new ServerRespond(result);
+        }
 
         String fullFileName = createFullPath(fileName);
         id = fileNames.add(fileName);
 
         if (id != 0) {
-            result = ClientServer.receiveFile(fullFileName, input) ? ServerCode.OK_CODE : ServerCode.ERR_CODE;
+            ClientServer rxTask = new ClientServer();
+            result = rxTask.receiveFile(fullFileName, input) ? ServerCode.OK_CODE : ServerCode.ERR_CODE;
         }
+
         return new ServerRespond(result, id);
     }
 
