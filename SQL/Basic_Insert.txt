@@ -1,0 +1,58 @@
+Basic INSERT statement
+
+Let's add a record about a new customer into the table customers with columns name(VARCHAR(20)),
+surname (VARCHAR(20)), zip_code(INT), city (VARCHAR(10))
+
++-----------+-----------+------------+-----------+
+|   name    |  surname  |  zip_code  |   city    |
++-----------+-----------+------------+-----------+
+|   Tom     |  Black    |  11643     | New York  |
++-----------+-----------+------------+-----------+
+| Hemione   |  Smith    |  20599     | Washington|
++-----------+-----------+------------+-----------+
+
+Our new customer's name is Bobby, his surname is Ray,
+his ZIP code is 60601, and he lives in Chicago.
+
+INSERT INTO cutomers (name, surname, zip_code, city)  VALUES ('Bobby', 'Ray', 60601, 'Chicago')
+
++-----------+-----------+------------+-----------+
+|   name    |  surname  |  zip_code  |   city    |
++-----------+-----------+------------+-----------+
+|   Tom     |  Black    |  11643     | New York  |
++-----------+-----------+------------+-----------+
+| Hemione   |  Smith    |  20599     | Washington|
++-----------+-----------+------------+-----------+
+|   Bobby   |    Ray    |   60601    |   Chicago |
++-----------+-----------+------------+-----------+
+
+
+if you know exact order of the columns in the table, you can use the shorter version of INSERT INTO
+query without specifying the column names:
+
+INSERT INTO cutomers VALUES ('Bobby', 'Ray', 60601, 'Chicago')
+
+Sometimes we wanted to insert a few rows, let's see how to do that:
+
+INSERT INTO customers (name, surname, zip_code, city)
+VAlUES ('Mary', 'West', 75201, 'Dallas'), ('Steve', 'Palmer', 33107, 'Miami')
+
+________________________________________________________________________
+Conclusion:
+Here is a template for BASIC INSERT INTO statement:
+
+INSERT INTO table_name (column_1, column_2, ..., column_n) VALUES
+(list_of_values_1) [, (list_of_values_2), ..., (list_of_values_m)]
+
+When you know the order of columns and want to insert values into all the columns, you can follow
+the shorter INSERT INTO statement template:
+
+INSERT INTO table_name VALUES(value_1, value_2, ..., value_n)
+
+
+
+
+
+
+
+

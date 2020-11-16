@@ -1,5 +1,6 @@
 # Write your code here
 import credit_card
+import DB_Storage
 
 
 class BankingService:
@@ -9,19 +10,22 @@ class BankingService:
         self.account_menu = {1: ("Balance", self.get_balance), 2: ("Log out", self.log_out), 0: ("Exit", self.exit)}
         self.current_menu = self.main_menu
         self.card_generator = credit_card.CreditCardGenerator()
-        self.registered_accounts = []
         self.current_account = None
+        self.db_connect = DB_Storage.db_create_connection()
 
     def __check_account(self, card_num, card_pin):
-        for account in self.registered_accounts:
-            if card_num == account.card_num and card_pin == account.pin_code:
-                return True, account
+        res = DB_Storage.db_check_account(self.db_connect, card_num, card_pin)
+        if res is not None:
+            return True, res[0]
         return False, None
-
+        #for account in self.registered_accounts:
+        #    if card_num == account.card_num and card_pin == account.pin_code:
+        #        return True, account
+        #return False, None
 
     def create_account(self):
         new_credit_card = credit_card.create_credit_card()
-        self.registered_accounts.append(new_credit_card)
+        DB_Storage.db_add_account(self.db_connect, new_credit_card.card_num, new_credit_card.pin_code)
         print("Your card has been created", "Your card number:", new_credit_card.card_num, "Your card PIN:", new_credit_card.pin_code, sep='\n')
 
     def log_into_account(self):
@@ -54,6 +58,10 @@ class BankingService:
 
     def handle_menu(self):
         while self.working_session:
+
+            if self.db_connect is None:
+                self.exit()
+
             self.menu_output()
             try:
                 usr_inp = int(input())
