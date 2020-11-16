@@ -9,14 +9,15 @@ class BankingService:
         self.main_menu = {1: ("Create an account", self.create_account), 2: ("Log into account", self.log_into_account), 0: ("Exit", self.exit) }
         self.account_menu = {1: ("Balance", self.get_balance), 2: ("Log out", self.log_out), 0: ("Exit", self.exit)}
         self.current_menu = self.main_menu
-        self.card_generator = credit_card.CreditCardGenerator()
         self.current_account = None
         self.db_connect = DB_Storage.db_create_connection()
+        if self.db_connect is not None:
+            self.card_generator = credit_card.CreditCardManager(self.db_connect)
 
     def __check_account(self, card_num, card_pin):
         res = DB_Storage.db_check_account(self.db_connect, card_num, card_pin)
         if res is not None:
-            return True, res[0]
+            return True, credit_card.CreditCard(*res)
         return False, None
         #for account in self.registered_accounts:
         #    if card_num == account.card_num and card_pin == account.pin_code:
@@ -24,7 +25,7 @@ class BankingService:
         #return False, None
 
     def create_account(self):
-        new_credit_card = credit_card.create_credit_card()
+        new_credit_card = credit_card.create_credit_card(self.card_generator)
         DB_Storage.db_add_account(self.db_connect, new_credit_card.card_num, new_credit_card.pin_code)
         print("Your card has been created", "Your card number:", new_credit_card.card_num, "Your card PIN:", new_credit_card.pin_code, sep='\n')
 

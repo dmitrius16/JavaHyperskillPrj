@@ -42,9 +42,9 @@ def db_add_account(db_connection, card_num, pin_code):
     except Error as e:
         print(e)
 
-
+# we don't need in this method
 def db_check_account(db_connection, card_num, pin_code):
-    sql_query = f'''SELECT number, pin FROM card WHERE number = {card_num}'''
+    sql_query = f'''SELECT number, pin, balance FROM card WHERE number = {card_num}'''
 
     try:
         curs = db_connection.cursor()
@@ -54,5 +54,15 @@ def db_check_account(db_connection, card_num, pin_code):
         print(e)
         return None
 
+
+def db_get_accounts(db_connection):
+    sql_query = f'''SELECT number FROM card'''
+    try:
+        curs = db_connection.cursor()
+        curs.execute(sql_query)
+        return curs.fetchall()
+    except Error as e:
+        print(e)
+        return None
 
 
