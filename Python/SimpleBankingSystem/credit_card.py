@@ -1,6 +1,7 @@
 import random
 import DB_Storage
 
+
 class CreditCardManager:
     IIN = 400000
     accounts_number = set()  # store here set of
@@ -25,14 +26,26 @@ class CreditCardManager:
             self.account_identifier = random.randint(100000000, 999999999)  #int(random.random() * 1000000000)
             if self.account_identifier not in CreditCardManager.accounts_number:
                 CreditCardManager.accounts_number.add(self.account_identifier)
-                numbers = [int(val) for val in self.get_credit_card_number()]
-                numbers = [val * 2 if ind % 2 == 0 else val for val, ind in zip(numbers, range(0, 16))]
-                sum_nums = sum([val - 9 if val > 9 else val for val in numbers])
-                self.checksum = 10 - sum_nums % 10
+                self.checksum = CreditCardManager.get_checksum(self.get_credit_card_number())
                 break
         self.pincode = random.randint(0, 9999)
         return self.get_credit_card_number(), str(self.pincode)
 
+    @staticmethod
+    def get_checksum(card_num):
+        if len(card_num) == 16:
+            numbers = [int(val) for val in card_num]
+            numbers[-1] = 0
+            numbers = [val * 2 if ind % 2 == 0 else val for val, ind in zip(numbers, range(0, 16))]
+            sum_nums = sum([val - 9 if val > 9 else val for val in numbers])
+            sum_nums %= 10
+            checksum = 10 - sum_nums if sum_nums > 0 else 0
+            return checksum
+        return -1
+
+    def check_checksum(self, card_num):
+        calc_check_sum = self.get_checksum(card_num)
+        return card_num[-1] == calc_check_sum
 
 
 def check_Luhn(number):
@@ -49,6 +62,9 @@ def check_Luhn(number):
     return checksum == number[-1]
 
 def generate():
+    """
+    generate - debug function for check Luhn
+    """
     while True:
         account_identifier = 7260233680
         acc_ident_str = str(400000) + str(account_identifier)

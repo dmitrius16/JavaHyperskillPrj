@@ -2,6 +2,7 @@ import sqlite3
 from sqlite3 import Error
 from pathlib import Path
 
+
 def db_create_connection():
     db_conn = None
     try:
@@ -44,7 +45,7 @@ def db_add_account(db_connection, card_num, pin_code):
 
 # we don't need in this method
 def db_check_account(db_connection, card_num, pin_code):
-    sql_query = f'''SELECT number, pin, balance FROM card WHERE number = {card_num}'''
+    sql_query = f'''SELECT number, pin, balance FROM card WHERE number = {card_num} AND pin = {pin_code}'''
 
     try:
         curs = db_connection.cursor()
