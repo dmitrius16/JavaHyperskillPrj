@@ -71,3 +71,52 @@ UPDATE empliyees SET salary = floor(0.8 * upper_limit)
 |   14          | Owen           |  88000       |   110000     |
 +---------------+----------------+--------------+--------------+
 
+__________________________________________________________________
+Updating selected rows:
+
+As usual, a logical expression in the WHERE clause can be a combination of several simple
+expression:
+
++---------------+----------------+----------------------------+--------------+
+| group_id      |    tutor       |   cource                   |  capacity    |
++---------------+----------------+----------------------------+--------------+
+|   12          | William Meier  |  Algebra 201               |   50         |
++---------------+----------------+----------------------------+--------------+
+|   14          | Martha Jacobson|  Nuclear physycs           |   25         |
++---------------+----------------+----------------------------+--------------+
+|   22          | Laura Gibbs    | Renaissanse literature 360 |   30         |
++---------------+----------------+----------------------------+--------------+
+|   36          | Donald Meier   |  Algerbra                  |   40         |
++---------------+----------------+----------------------------+--------------+
+|   38          | Becky Stout    | Information retrieval 45   |   30         |
++---------------+----------------+----------------------------+--------------+
+
+Due to the recent policy update from the college administration, the number of students in all
+groups taking algebra has to be cut to 40. At the same time, miss Gibbs realizes that her literature
+cource is more popular than she thought, so she would like to increase the number of students taking
+her cource up to 40.
+
+Let's reflect this change in the table:
+
+UPDATE groups SET capacity = 40 WHERE LOCATE('Algebra', cource) > 0 OR tutor = 'Laura Gibbs'
+
++---------------+----------------+----------------------------+--------------+
+| group_id      |    tutor       |   cource                   |  capacity    |
++---------------+----------------+----------------------------+--------------+
+|   12          | William Meier  |  Algebra 201               |   40         |
++---------------+----------------+----------------------------+--------------+
+|   14          | Martha Jacobson|  Nuclear physycs           |   25         |
++---------------+----------------+----------------------------+--------------+
+|   22          | Laura Gibbs    | Renaissanse literature 360 |   40         |
++---------------+----------------+----------------------------+--------------+
+|   36          | Donald Meier   |  Algerbra                  |   40         |
++---------------+----------------+----------------------------+--------------+
+|   38          | Becky Stout    | Information retrieval 45   |   30         |
++---------------+----------------+----------------------------+--------------+
+
+WHERE clause doesn't change a lot in the basic template for UPDATE queries but 
+plays a cruicial role. 
+
+Here is the general template of an update statement:
+
+UPDATE table_name SET col1 = expr1, col2 = expr3..., colN = expr WHERE logical_expression;

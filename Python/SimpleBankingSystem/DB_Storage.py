@@ -2,7 +2,6 @@ import sqlite3
 from sqlite3 import Error
 from pathlib import Path
 
-
 def db_create_connection():
     db_conn = None
     try:
@@ -43,9 +42,9 @@ def db_add_account(db_connection, card_num, pin_code):
     except Error as e:
         print(e)
 
-# we don't need in this method
+
 def db_check_account(db_connection, card_num, pin_code):
-    sql_query = f'''SELECT number, pin, balance FROM card WHERE number = {card_num} AND pin = {pin_code}'''
+    sql_query = f"SELECT number, pin, balance FROM card WHERE number = '{card_num}' and pin = '{pin_code}'"
 
     try:
         curs = db_connection.cursor()
@@ -54,6 +53,32 @@ def db_check_account(db_connection, card_num, pin_code):
     except Error as e:
         print(e)
         return None
+
+
+def db_check_card(db_connection, card_num):
+    sql_query = f'''SELECT number, balance FROM card WHERE number = {card_num}'''
+
+    try:
+        curs = db_connection.cursor()
+        curs.execute(sql_query)
+        return curs.fetchone()
+    except Error as e:
+        print(e)
+        return None
+
+
+def db_change_balance(db_connection, credit_card):
+    sql_query = f'UPDATE card SET balance = {credit_card.balance} WHERE number = {credit_card.card_num}'
+    result = False
+    try:
+        curs = db_connection.cursor()
+        curs.execute(sql_query)
+        db_connection.commit()
+        result = True
+    except Error as e:
+        print(e)
+    finally:
+        return result
 
 
 def db_get_accounts(db_connection):
@@ -67,3 +92,15 @@ def db_get_accounts(db_connection):
         return None
 
 
+def db_delete_account(db_connection, credit_card):
+    sql_query = f'DELETE FROM card WHERE number = {credit_card.card_num}'
+    result = False
+    try:
+        curs = db_connection.cursor()
+        curs.execute(sql_query)
+        db_connection.commit()
+        result = True
+    except Error as e:
+        print(e)
+    finally:
+        return result

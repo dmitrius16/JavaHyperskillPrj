@@ -8,6 +8,7 @@ Note: This syntax get from PostgresSQL
 3. reverse(s) - reverses string Example reverse('Madam, I'm Adam) -> madAm m'I ,madAm
 4. replace(s_in, s_what, s_with) Example replace('abracadabra') -> 'acada'
 5. substr - return sub string Example('Hello, data!', 8, 4) return 'data'
+6. locate(substring, string, [start_position]) is success 1 else 0
 
 Logic Expression:
 NOT, AND, OR

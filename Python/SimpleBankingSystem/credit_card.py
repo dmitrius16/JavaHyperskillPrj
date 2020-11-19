@@ -28,8 +28,8 @@ class CreditCardManager:
                 CreditCardManager.accounts_number.add(self.account_identifier)
                 self.checksum = CreditCardManager.get_checksum(self.get_credit_card_number())
                 break
-        self.pincode = random.randint(0, 9999)
-        return self.get_credit_card_number(), str(self.pincode)
+        self.pincode = "{:04d}".format(random.randint(0, 9999))
+        return self.get_credit_card_number(), self.pincode
 
     @staticmethod
     def get_checksum(card_num):
@@ -43,35 +43,25 @@ class CreditCardManager:
             return checksum
         return -1
 
-    def check_checksum(self, card_num):
-        calc_check_sum = self.get_checksum(card_num)
-        return card_num[-1] == calc_check_sum
+    @staticmethod
+    def check_checksum(card_num):
+        calc_check_sum = CreditCardManager.get_checksum(card_num)
+        return card_num[-1] == str(calc_check_sum)
 
-
-def check_Luhn(number):
-    numbers = [int(val) for val in number[:-1]]
-    print("Numbers:", numbers)
-    numbers = [val * 2 if ind % 2 == 0 else val for val, ind in zip(numbers, range(0, 16))]
-    print("Mult*2 :", numbers)
-    numbers = [val - 9 if val > 9 else val for val in numbers]
-    print("sub9   :", numbers)
-    sum_nums = sum(numbers)
-    print("Summ:", sum_nums)
-    checksum = 10 - sum_nums % 10
-    print("Check summ:", checksum)
-    return checksum == number[-1]
 
 def generate():
     """
     generate - debug function for check Luhn
     """
     while True:
-        account_identifier = 7260233680
-        acc_ident_str = str(400000) + str(account_identifier)
-        numbers = [int(val) for val in acc_ident_str]
-        numbers = [val * 2 if ind % 2 == 0 else val for val, ind in zip(numbers, range(0, 16))]
+        account_identifier = 4000006927125970
+        #acc_ident_str = str(400000) + str(account_identifier)
+        acc_ident_str = str(account_identifier)
+        numbers = [int(val) for val in acc_ident_str[:-1]]
+        numbers = [val * 2 if ind % 2 == 0 else val for val, ind in zip(numbers, range(0, 15))]
         sum_nums = sum([val - 9 if val > 9 else val for val in numbers])
-        checksum = 10 - sum_nums % 10
+        sum_nums %= 10
+        checksum = 10 - sum_nums if sum_nums > 0 else 0
         break
     return acc_ident_str[:-1] + str(checksum)
 
@@ -101,4 +91,4 @@ def create_credit_card(card_gen):
 if __name__ == "__main__":
     num = generate()
     print("generate:", num)
-    print("Check", check_Luhn(num))
+    print("Check", CreditCardManager.check_checksum(num))
