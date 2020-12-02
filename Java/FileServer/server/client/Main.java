@@ -2,78 +2,106 @@ package client;
 import java.io.*;
 import java.net.Socket;
 import java.net.InetAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import common.ClientServer;
-
-
+import common.ClientServerTasks;
 
 public class Main {
     private static final String menu = "Enter action (1 - get the file, 2 - save the file, 3 - delete the file):";
     private static final String enterFileName = "Enter name of the file: ";
-    private static final String enterFileNameOnServer = "Enter name of the file to be saved on server:";
+    private static final String enterFileNameOnServer = "Enter name of the file to be saved on server: ";
     private static final String getFileFromNameOrId = "Do you want to get the file by name or by id (1 - name, 2 - id):";
+    private static final String deleteFileFromNameOrId = "Do you want to delete the file by name or by id (1 - name, 2 - id):";
     private static final String requestSend = "The request was sent.";
-    private static final String okResponseSays = "Ok, the response says that the file was ";
-    private static final String errCodeUndef = "Error, undefined received code";
+    private static final String responseSays = "The response says that the file ";
+    private static final String fileNotFoundResponseSays = "The response says that this file is not found!";
+    private static final String fileDownloadedTypeFileName = "The file was downloaded! Specify a name for it: ";
+    private static final String undefErrOccur = "Undefined IOException error occur";
+    private static final String fileSucessfullySaved = "File saved on the hard drive!";
 
-    private static final int CHUNK_SIZE = ClientServer.CHUNK_SIZE;
+    private static final int CHUNK_SIZE = ClientServerTasks.CHUNK_SIZE;
 
     private static Socket socket;
     private static DataInputStream input;
     private static DataOutputStream output;
 
-    private static ClientServer rxtxTask = new ClientServer();
+    private static ClientServerTasks rxtxTask = new ClientServerTasks();
 
-    private static String getFileRequest(String fileName) throws IOException {
-        output.writeUTF("GET " + fileName);
+    private static String getFileNamePath(String fileName) {
+        //return Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\" + fileName;
+        return "c:\\Users\\Dmitriy\\IdeaProjects\\File Server\\File Server\\task\\src\\client\\data\\" + fileName;
+    }
+
+    private static String createRequest(String request, String fileName ,boolean isNameID) {
+        return request + " " + (isNameID ? "BY_ID " : "BY_NAME ") + fileName;
+    }
+
+    private static void getFileRequest(String fileName, boolean isNameID, Scanner scanner) throws IOException {
+        //output.writeUTF("GET " + (isNameID ? "BY_ID " : "BY_NAME ") + fileName);
+        output.writeUTF(createRequest("GET", fileName, isNameID));
         System.out.println(requestSend);
-
-        String[] res = input.readUTF().split("\\s+");
-        if (res[0].equals("404")) {
-            return okResponseSays + "not found!";
-        } else if (res[0].equals("200")) {
-            String temp_res = "Ok, the content of the file is:\n";
-            if(res.length > 1) {
-                temp_res += res[1];
+        String serverRespond = input.readUTF();
+        if (serverRespond.equals("200")) {
+            File file = new File(getFileNamePath("temp.tmp"));
+            try (FileOutputStream fileOutput = new FileOutputStream(file)) {
+                rxtxTask.receiveFile(fileOutput, input);
+            } catch(IOException ex) {
+                System.out.println(undefErrOccur);
             }
-            return temp_res;
+
+            System.out.print(fileDownloadedTypeFileName);
+            String clientFileName = scanner.nextLine();
+            Path filePath = Path.of(getFileNamePath("temp.tmp"));
+            Files.move(filePath, filePath.resolveSibling(clientFileName));
+            System.out.println(fileSucessfullySaved);
         } else {
-            return errCodeUndef;
+            System.out.println(fileNotFoundResponseSays);
         }
     }
 
-    private static String deleteFileRequest(String fileName) throws IOException {
-        output.writeUTF("DELETE " + fileName);
+    private static void deleteFileRequest(String fileName, boolean isNameID) throws IOException {
+        output.writeUTF(createRequest("DELETE", fileName, isNameID));
         System.out.println(requestSend);
         String res = input.readUTF();
         if (res.equals("200")) {
-            return okResponseSays + "successfully deleted!";
+            System.out.println(responseSays + "was deleted successfully!");
         } else if (res.equals("404")) {
-            return okResponseSays + "not found!";
+            System.out.println(responseSays + "is not found!");
         } else {
-            return errCodeUndef;
+            System.out.println(responseSays + "undefined error occur!");
         }
+
     }
 
-    private static String putFileRequest(String fileName, String serverFileName) throws IOException {
+    private static void turnOffServerRequest() throws IOException {
+        output.writeUTF("exit");
+    }
+
+    private static void putFileRequest(String fileName, String serverFileName) throws IOException {
         StringBuilder sb = new StringBuilder("PUT ")
                             .append(fileName)
                             .append(" ");
-        String path = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\";
 
-        File file = new File(path + fileName);
-        String result = "";
+        File file = new File(getFileNamePath(fileName));
+
         if (file.exists()) {
             FileInputStream readFile = new FileInputStream(file);
             output.writeUTF("PUT " + serverFileName);
             rxtxTask.transmitFile(readFile, output);
-            result = input.readUTF();
+            String[] respond = input.readUTF().split("\\s+",2);
+            if (respond[0].equals("200")) {
+                System.out.println("Response says that file is saved! ID = " + respond[1]);
+            } else if (respond[0].equals("403")) {
+                System.out.println("Response says that file with this name is already exists");
+            } else {
+                System.out.println("Response says that undefined error occur!");
+            }
         } else {
             System.out.println("File not found on the client side");
         }
-        return result;
     }
 
     private static int inputNumber(Scanner usrInput) {
@@ -100,37 +128,62 @@ public class Main {
         }
     }
 
+    private static boolean isUsrChooseFileByID(String prompt, Scanner scanner) {
+        System.out.println(prompt);
+        int item = chooseHowGetOrDeleteFile(scanner);
+        boolean isGetFromId = item == 2;
+        System.out.printf("Enter %s: ", isGetFromId ? "id" : "name");
+        return isGetFromId;
+    }
+
+    private static int chooseMenuItem(Scanner scanner) {
+
+        while(true) {
+            String usrInp = scanner.nextLine();
+            if (usrInp.equals("exit")) {
+                return 0;
+            } else {
+                try {
+                    int res = Integer.parseInt(usrInp);
+                    if (res >= 1 && res <= 3) {
+                        return res;
+                    } else {
+                        System.out.println("Enter number from 1 to 3. Try again!");
+                    }
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter number! Try again.");
+                }
+            }
+        }
+    }
+
     public static void handleMenu() {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println(menu);
         try
         {
-            int menuItem = Integer.parseInt(scanner.nextLine());
+            int menuItem = chooseMenuItem(scanner);
 
             switch(menuItem) {
+                case 0:
+                    turnOffServerRequest();
+                break;
                 case 1:
-                    System.out.println(getFileFromNameOrId);
-                    int item = chooseHowGetOrDeleteFile(scanner);
-                    System.out.printf("Enter %s: ", item == 1 ? "name" : "id");
-                    if (item == 2) {
-                        Integer id = inputNumber(scanner);
-                        getFileRequest(id.toString())
-                    }
+                    boolean isGetFromId = isUsrChooseFileByID(getFileFromNameOrId, scanner);
+                    getFileRequest(scanner.nextLine(), isGetFromId, scanner);
                     break;
                 case 2:
                     System.out.print(enterFileName);
                     String fileName = scanner.nextLine();
+                    // check here if file not exists
                     System.out.print(enterFileNameOnServer);
                     String serverFileName = scanner.nextLine();
-                    String serverAnswer = putFileRequest(fileName, serverFileName);
-                    String[] res = serverAnswer.split("\\s+");
-                    if (res[0].equals("200")) {
-                        System.out.println("Response says that file is saved! ID = " + res[1]);
-                    }
+                    putFileRequest(fileName, serverFileName);
                     break;
                 case 3:
-                    //result = deleteFileRequest(fileName);
+                    isGetFromId = isUsrChooseFileByID(deleteFileFromNameOrId, scanner);
+                    deleteFileRequest(scanner.nextLine(), isGetFromId);
                     break;
                 default:
                     System.out.println("Choose correct item!");
@@ -151,7 +204,7 @@ public class Main {
             socket = new Socket(InetAddress.getByName(address), port);
             input = new DataInputStream(socket.getInputStream());
             output = new DataOutputStream(socket.getOutputStream());
-            HandleMenu();
+            handleMenu();
 
             socket.close();
         } catch (IOException ex) {

@@ -1,8 +1,11 @@
 package server;
 
+import common.FileDescription;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 class IdToNameMapper implements Serializable {
 
@@ -19,7 +22,7 @@ class IdToNameMapper implements Serializable {
      add file name to mapper and return ID
      if id positive iperation sucessful else faild occur
      */
-    public int add(String fileName){
+    public synchronized int add(String fileName) {
         //check if file has already exist
         int fileId = 0;
         if (!name2id.containsKey(fileName)) {
@@ -30,38 +33,44 @@ class IdToNameMapper implements Serializable {
         return fileId;
     }
 
-    boolean isExist(String fileName) {
-        return name2id.containsKey(fileName);
+    public synchronized boolean isExist(FileDescription file) {
+        if (file.isFileAsName()) {
+            return name2id.containsKey(file.getName());
+        } else {
+            return id2name.containsKey(file.getId());
+        }
     }
 
-    boolean isExist(int id) {
-        return id2name.containsKey(id);
-    }
-
-    String getFileNameFromId(int id) {
+    public synchronized String getFileNameFromId(int id) {
         return id2name.get(id);
     }
 
-    int getIdFromFileName(String fileName) {
+    public synchronized int getIdFromFileName(String fileName) {
         return name2id.get(fileName);
     }
 
     /**
      * remove file from filestorage
-     * @param fileName - name removed file
+     * @param fileDescr - description removed file(combination name and id)
      * @return
-     *  0 - file not found
-     *  ID - if file successully deleted
+     *  true - sucessfully remove else false
+     *
      */
-    public int remove(String fileName){
+    public synchronized boolean remove(FileDescription fileDescr){
         int id = 0;
-        if (name2id.containsKey(fileName)) {
+        String fileName = "";
+        if (fileDescr.isFileAsName()) {
+            fileName = fileDescr.getName();
             id = name2id.get(fileName);
-            name2id.remove(fileName);
-            id2name.remove(id);
-
+        } else {
+            id = fileDescr.getId();
+            fileName = id2name.get(id);
         }
-        return id;
+
+        name2id.remove(fileName);
+        id2name.remove(id);
+
+        return Objects.nonNull(fileName);
     }
 
 

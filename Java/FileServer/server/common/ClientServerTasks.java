@@ -3,29 +3,33 @@ package common;
 import java.io.*;
 import java.nio.file.Paths;
 
-public class ClientServer {
+public class ClientServerTasks {
     public static int CHUNK_SIZE = 4096;
 
     private byte[] tempBuffer = new byte[CHUNK_SIZE];  //make for every object
 
-    public boolean receiveFile(String fileName, DataInputStream input) {
-        boolean result = false;
-        try (FileOutputStream fileOutput = new FileOutputStream(new File(fileName))) {
-            int rxSize = 0;
-            int sizeFile = input.readInt();
+    /**
+     * Receive file from destination. Client calls this method when issue GET request. Server calls this
+     * method when PUT request received
+     * @param fileOutput
+     * @param input
+     * @return true if size trasmit equal received size
+     * @throws IOException
+     */
+    public boolean receiveFile(FileOutputStream fileOutput, DataInputStream input) throws IOException {
 
-            while(rxSize < sizeFile) {
-                int rxBytes = input.read(tempBuffer);
-                if (rxBytes == -1)
-                    break;
-                rxSize += rxBytes;
-                fileOutput.write(tempBuffer,0, rxBytes);
-            }
-            result = true;
-        } catch (IOException ex) {
-            ex.printStackTrace();
+        int rxSize = 0;
+        int sizeFile = input.readInt();
+
+        while(rxSize < sizeFile) {
+            int rxBytes = input.read(tempBuffer);
+            if (rxBytes == -1)
+                break;
+            rxSize += rxBytes;
+            fileOutput.write(tempBuffer,0, rxBytes);
         }
-        return result;
+
+        return rxSize == sizeFile;
     }
 
 
@@ -41,10 +45,12 @@ public class ClientServer {
             int numSendBytes = readFile.available();
             output.writeInt(numSendBytes);
             int rdBytes = 0;
+            int cntWriteBytes = 0;
             while ((rdBytes = readFile.read(tempBuffer)) != - 1) {
                 output.write(tempBuffer, 0 ,rdBytes);
+                cntWriteBytes += rdBytes;
             }
-            return true;
+            return cntWriteBytes == numSendBytes;
     }
 
     public enum ServerCode {
@@ -54,7 +60,7 @@ public class ClientServer {
 
         private String repr;
         ServerCode(String strVal) {repr = strVal;}
-        String getRepr() {return repr;}
+        public String getRepr() {return repr;}
     }
 
     public static class ServerRespond {
@@ -71,10 +77,13 @@ public class ClientServer {
             this.additionalInfo = Integer.toString(id);
         }
 
+        public void setCode(ServerCode code) {this.code = code;}
+        public void setAdditionalInfo(String info) {this.additionalInfo = info;}
+
         public ServerCode getCode() {return code;}
 
         public String toString() {
-            return code.getRepr() + " " + additionalInfo;
+            return code.getRepr() + (this.additionalInfo.isEmpty() ? "" : (" " + additionalInfo));
         }
     }
 }

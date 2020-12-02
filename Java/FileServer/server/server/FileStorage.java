@@ -1,102 +1,126 @@
 package server;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import common.ClientServer;
-import common.ClientServer.ServerRespond;
-import common.ClientServer.ServerCode;
+
+import common.ClientServerTasks;
+import common.ClientServerTasks.ServerRespond;
+import common.ClientServerTasks.ServerCode;
+import common.FileDescription;
 
 public class FileStorage {
-    private final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
+    private final String folderPath = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\server\\data\\";
     private IdToNameMapper fileNames;
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
+
     private String createFullPath(String fileName) {
         return folderPath + "\\" + fileName;
     }
+
     public FileStorage() {
-        File folder = new File(folderPath);
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("id2map.dat"))) {
-            fileNames = (IdToNameMapper)ois.readObject();
-        } catch(Exception ex) {
+        ///File folder = new File(folderPath);
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(folderPath + "id2map.dat"))) {
+            fileNames = (IdToNameMapper) ois.readObject();
+        } catch (Exception ex) {
             System.out.println("Id2Map corrupted");
             fileNames = new IdToNameMapper();
         }
     }
 
-    public boolean isFileExists(String fileName)
-    {
-        return fileNames.isExist(fileName);
-    }
-
-    public boolean isFileExists(int id) {
-        return fileNames.isExist(id);
+    public boolean isFileExists(FileDescription file) {
+        return fileNames.isExist(file);
     }
 
     public void saveFileNamesInfo() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("id2map.dat"))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(folderPath + "id2map.dat"))) {
             oos.writeObject(fileNames);
         } catch (Exception ex) {
             System.out.print("Can't save file names info. All data will be lost");
         }
     }
 
-    public ServerRespond put(String fileName, DataInputStream input) {
+    public void put(FileDescription fileDescr, DataInputStream input, DataOutputStream output) {
         //check if file exists
-        ServerCode result = ServerCode.FILE_EXIST;
+        ServerRespond response = new ServerRespond(ServerCode.FILE_EXIST);
         int id = 0;
 
-        if (fileName.isEmpty()) {
+        if (fileDescr.getName().isEmpty()) {
             do {
-                fileName = dtf.format(LocalDateTime.now());
+                fileDescr.setFileName(dtf.format(LocalDateTime.now()));
                 // not so beautiful as I want
-            } while (isFileExists(fileName));
-        } else if (isFileExists(fileName)) {
-            return new ServerRespond(result);
-        }
-
-        String fullFileName = createFullPath(fileName);
-        id = fileNames.add(fileName);
-
-        if (id != 0) {
-            ClientServer rxTask = new ClientServer();
-            result = rxTask.receiveFile(fullFileName, input) ? ServerCode.OK_CODE : ServerCode.ERR_CODE;
-        }
-
-        return new ServerRespond(result, id);
-    }
-
-    public ServerRespond delete(String fileName) {
-        ServerCode result = ServerCode.ERR_CODE;
-        if (isFileExists(fileName)) {
-            File file = new File(createFullPath(fileName));
-            if (file.delete()) {
-                fileNames.remove(fileName);
-                result = ServerCode.OK_CODE;
-            }
-        }
-        return new ServerRespond(result);
-    }
-
-    public ServerRespond get(String fileName, FileContent content) {
-        ServerCode result = ServerCode.ERR_CODE;
-        if (isFileExists(fileName)) {
+            } while (isFileExists(fileDescr));
+        } else if (isFileExists(fileDescr)) {
             try {
-                content.setContent(Files.readAllBytes(Paths.get(createFullPath(fileName))));
-                result = ServerCode.OK_CODE;
-            } catch (IOException | OutOfMemoryError ex) {
-                ex.printStackTrace();
+                output.writeUTF(response.toString());
+            } catch (IOException ex) {
+                System.out.println("Socket exception occur! Can't send response to client");
+                return;
             }
         }
-        return new ServerRespond(result);
+
+        ClientServerTasks rxTask = new ClientServerTasks();
+        File file = new File(createFullPath(fileDescr.getName()));
+        try (FileOutputStream fileOut = new FileOutputStream(file)) {
+            if (rxTask.receiveFile(fileOut, input)) {
+                id = fileNames.add(fileDescr.getName());
+                response.setCode(ServerCode.OK_CODE);
+                response.setAdditionalInfo(Integer.toString(id));
+            } else
+                response.setCode(ServerCode.ERR_CODE);
+
+            output.writeUTF(response.toString());
+
+        } catch (FileNotFoundException ex) {
+            System.out.println("File not found exception occur!");
+        } catch (IOException ex) {
+            System.out.println("Socket exception occur! Receive file and send response");
+        }
     }
 
-    public ServerRespond get(int id, FileContent content) {
-        return get(fileNames.getFileNameFromId(id), content);
+    public void delete(FileDescription fileDescr, DataOutputStream output) {
+        ServerRespond respond = new ServerRespond(ServerCode.ERR_CODE);
+        try {
+            if (isFileExists(fileDescr)) {
+                if (fileDescr.isFileAsID()) {
+                    fileDescr.setFileName(getFileNameFromId(fileDescr.getId()));
+                }
+
+                File file = new File(createFullPath(fileDescr.getName()));
+                if (file.exists() && file.delete()) {
+                    fileNames.remove(fileDescr);
+                    respond.setCode(ServerCode.OK_CODE);
+                }
+            }
+            output.writeUTF(respond.toString());
+        } catch (IOException ex) {
+            System.out.println("Exception occur during delete request");
+        }
     }
+
+    public void get(FileDescription fileDescr, DataOutputStream output) {
+        ServerRespond respond = new ServerRespond(ServerCode.ERR_CODE);
+        try {
+            boolean fileFound = isFileExists(fileDescr);
+            if (fileFound) {
+                respond.setCode(ServerCode.OK_CODE);
+                if (fileDescr.isFileAsID()) {
+                    fileDescr.setFileName(getFileNameFromId(fileDescr.getId()));
+                }
+            }
+            output.writeUTF(respond.toString());
+            if (fileFound) {
+                ClientServerTasks txTask = new ClientServerTasks();
+                FileInputStream rdFile = new FileInputStream(new File(createFullPath(fileDescr.getName())));
+                txTask.transmitFile(rdFile, output);
+            }
+        } catch (IOException | OutOfMemoryError ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     public String getFileNameFromId(int id) {
         return fileNames.getFileNameFromId(id);
@@ -105,22 +129,4 @@ public class FileStorage {
     public int getFileIdFromName(String name) {
         return fileNames.getIdFromFileName(name);
     }
-/*
-    public static class FileContent {
-        private String content = "";
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public void setContent(byte[] cont) {
-            String contStr = new String(cont);
-            content = contStr;
-        }
-
-        public String getContent() {
-            return this.content;
-        }
-    }
- */
 }
