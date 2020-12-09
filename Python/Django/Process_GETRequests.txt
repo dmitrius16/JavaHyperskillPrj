@@ -1,0 +1,91 @@
+_____________________________
+How to process GET requests
+
+Imagine we have candy factory. Let's look at the assortment:
+
+candies = {
+    "Fudge": {
+        "color": "beige",
+        "price": "proceless",
+        "availabele": 100,
+    },
+    "Chocolate shock": {
+        "color": "brown",
+        "price": "precious",
+        "available": 50,
+    },
+    "Marshmallow" : {
+        "color": "pink",
+        "price": "all the money in the world",
+        "available: 200,
+    },
+}
+
+On the main page we wants to put the assortment list and nothing else.
+When we visit this site, we send GET request to his service. GET is a method
+used to receive data from server.
+
+
+Django has classes that take over routine work with HTTP requests, so the only part you 
+should implement by yourself is the response. The response is an instance of the inheritors
+of Django HttpResponseBase class - HeepResponse. We ass this piece of code to the candies/views.py 
+module:
+
+from django.http import HttpResponse
+from django.views import View 
+
+class MainPageView(View):
+    def get(self, request, *args, **kwargs):
+        html = "\n".join(f"<div>{candy}</div> for candy in candies)
+        return HttpResponse(html)
+
+
+_______________________________
+Not Found Pages
+
+For each customer who wants to know more about a particular candy, we make another page and class to process that 
+request. And if the customer asks us about a nonexistent candy, we've got to report that we couldn't find it. The 
+corresponding HTTP status code is 404, but we don't see any codes in the previous example. So how does it even work?
+
+Let's make a handler for a custom candy page in the same module:
+
+from django.http import HttpResponse, Http404
+from django.views import View
+
+class CandyView(View):
+    def get(self, request, candy_name, *args, **kwargs):
+        if candy_name not in candies:
+            raise Http404
+        
+        candy_info = "".join(
+            f"<tr><td>{key}:</td><td>{value}</td></tr>"
+            for key, value in candies[candy_name].items()
+        )
+        return HttpResponse(f"<table><tbody>{candy_info}</tbody></table>")
+
+___________________________________
+URL routing
+
+We create handlers for requests, but how does Django choose the appropriate one?
+For this purpose, we define URL routes in factory/urls.py module:
+
+from django.urls import path, re_path
+from candies.views import MainPageView, CandyView
+
+urlpatterns = [
+    path("candies/", MainPageView.as_view()),
+    re_path("candies/(?P<candy_name>[^/]*)?", CandyView.as_view()),
+]
+
+For example if out site has the hostname www.willywonka.com, then the assortment page will be 
+available at the address www.willywonka.com/candies, and information about fudge will be Found
+at www.willywonka.com/candies/Fudge.
+
+we see regular expression (?P<candy_name>[^/]*). This expression extracts the variable candy_name
+from the link and passes it to the handler. 
+
+To bind a link with an approproate handler, we can call path or re_path functions and add the result to the urlpatterns list.
+The first argument of each function receives a string that describes a pattern for a link that comes after the hostname. it
+can be a simple string in path function and a regular expression in case of re_path. The second arg is a handler that will process
+a request.
+

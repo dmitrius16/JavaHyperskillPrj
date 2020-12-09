@@ -1,0 +1,184 @@
+1. Create virtual env
+python -m venv hyperskill-django
+
+2. Activate virtual env:
+hyperskill-django\scripts\activate
+
+For deactivate type: deactivate
+
+3. Install django: pip install Django==2.2
+4. Check version: django-admin version
+
+
+Django-admin helps organize the layout of your project. 
+Note than different version of Django have different default layouts. Try to stick
+to its provided structure: it will make your code easier to maintain.
+
+To create project and first application, run the following in the command line:
+
+django-admin startproject magazine - command for start new project
+cd magazine 
+django-admin startapp blog - command for start new application
+
+Model:
+
+magazine/ 
+|___blog
+    |___models.py
+
+The Model component includes all the database operations with the business objects in your 
+project.
+_______________________________________________________________________________________________
+
+2. Prepare a simple project
+
+#Unix
+django-admin startproject smithee
+cd smithee
+django-admin startapp movies
+mkdir -p movies/templates/movies
+
+#Windows
+django-admim startproject smithee
+cd smithee
+django-admin startapp movies
+mkdir movies\templates\movies
+
+Add this code to the movies/templates/movies/index.html:
+
+<!DOCTYPE html>
+<title>Movies</title>
+
+<h1>Films by {{ director }}</h1>
+
+<ul>
+{% for movie in movies %}
+    <li>{{ movie.year }} - {{ movie.title }}</li>
+{% endfor %}
+</ul>
+
+Add this code to the movies/views.py:
+
+from django.conf import settings
+from django.shortcuts import render
+from django.views import View
+
+movies = [
+    {
+        'title': 'Catchfire', 
+        'year': 1990,
+    },
+    {
+        'title': 'Mighty Ducks the Movie: The First Face-Off',
+        'year': 1997,
+    },
+    {
+        'title': 'Le Zombi de Cap-Rouge', 
+        'year': 1997,
+    },
+]
+
+class MovieView(View):
+    def get(self, request, *args, **kwargs):
+        return render(
+            request, 'movies/index.html', context={
+                'director': settings.DIRECTOR, 
+                'movies': movies,
+            }
+        )
+
+
+Since it is just a single page on the site, we add one path to the urlpatterns list in smithee/urls.py
+
+from django.urls import path 
+from movies.views import MovieView
+
+urlpatterns = [
+    path('', MovieView.as_view()),
+]
+
+_______________________________
+configure settings.py
+
+Settings.py is a usual Python module. The difference is that in this file you only define the variables and do not write any
+functions or classes. You can locate the module in the <project_name> directory: in our case, it is smithee/settings.py. Let's
+look more closely at what we need to work with a basic Django project.
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR is the name of the folder where your project is located in the file system.
+if you want to define the name for a log file, it can be LOG_FILE = os.path.join(BASE_DIR, 'smithee.logs')
+
+ALLOWED_HOSTS = ['localhost']
+
+When you run your server on the local machine, you should add 'localhost' to the ALLOWED_HOSTS
+
+
+DATABASES = {}
+
+By default, Django generates config with a sqlite3 database for you. 
+
+_______________________________________________________________________________________________
+Add application to the Settings
+
+To include your applications in the project, you should modify the INSTALLED_APPS variable in the settings.py module
+INSTALLED_APPS = [
+    'django.contrib.admin', 
+    'django.contrib.auth', 
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'movies',
+]
+
+By default, Django prepares this list with applications you can use for your web services. Right now we don't get too deep
+with what django.contrib.* modules are, but it's necessary to add your own application to the INSTALLED_APPS. In our case 
+movies app.
+
+_______________________________________________________________________________________________
+Custom variables
+
+In settings.py you can include other values of your project. You may have constants that stay the same for several modules or even
+applications. For example, the name of the director for whom we're making a site may appear on different pages of our project, so 
+we save his name in settings.py
+
+DIRECTOR = 'Alan Smithee'
+
+After that, you can access the DIRECTOR's name through the import django.conf.settings.DIRECTOR
+_______________________________
+Starting the Local Server
+
+We have an application and we configured the settings: looks loke we're finally ready to start the server! To launch the server on 
+your local machine, you should run the runserver:
+
+python manage.py runserver
+
+if we see "Error: That port is already in use." Just try enother port
+
+python manage.py runserver 9090
+__________________________________
+
+Django Debug Mode
+
+Let's face it though: bugs happen. You can start debug mode adding:
+
+DEBUG = True in your settings.py 
+
+
+IT's strongly recommended to set DEBUG = False when you launch the server for your users. You can accidentally disclose some 
+secret information through the tracebacks. To prevent such situations, do not forget to turn off the debug mode for the production servers.
+
+example 
+    When the application was under construction, one of the developers forgot the {% endfor %} tag in the movies/templates/movies/index.html
+    <!DOCTYPE html>
+    <title>Movies</title>
+
+    <h1>Films by {{ director }}</h1>
+
+    <ul>
+    {% for movie in movies %}
+        <li>{{ movie.year }} - {{ movie.title }}</li>
+    </ul>
+
+    
