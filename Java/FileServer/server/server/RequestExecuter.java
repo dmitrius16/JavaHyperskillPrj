@@ -16,7 +16,8 @@ import common.CheckedConsumer;
 
 public class RequestExecuter {
     ////private static final String folderPath = Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\server\\data\\";
-    private static final String folderPath = "C:\\Users\\Dmitriy\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
+    //private static final String folderPath = "C:\\Users\\Dmitriy\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
+    private static final String folderPath = "C:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\server\\data\\";
     private static IdToNameMapper fileNames;
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH-mm-ss");
 
@@ -89,8 +90,7 @@ public class RequestExecuter {
 
         ClientServerTasks rxTask = new ClientServerTasks();
         File file = new File(createFullPath(fileDescr.getName()));
-        //debug
-        System.out.println("Create File: " + createFullPath(fileDescr.getName()));
+
 
         try (FileOutputStream fileOut = new FileOutputStream(file)) {
             if (rxTask.receiveFile(fileOut, input)) {
@@ -111,19 +111,11 @@ public class RequestExecuter {
         ServerRespond respond = new ServerRespond(ServerCode.ERR_CODE);
 
         if (isFileExists(fileDescr)) {
-            //debug
-            System.out.println("Server DELETE request:file successfully found in internal storage");
             if (fileDescr.isFileAsID()) {
                 fileDescr.setFileName(fileNames.getFileNameFromId(fileDescr.getId()));
             }
-
-            //debug
-            System.out.println("server:Delete file Path: " + createFullPath(fileDescr.getName()));
-
-
             File file = new File(createFullPath(fileDescr.getName()));
 
-            System.out.println("Server file exists?: " + (file.exists() ? "true" : "false"));
             if (file.delete()) {
                 fileNames.remove(fileDescr);
                 respond.setCode(ServerCode.OK_CODE);
@@ -151,8 +143,11 @@ public class RequestExecuter {
         output.writeUTF(respond.toString());
         if (fileFound) {
             ClientServerTasks txTask = new ClientServerTasks();
-            FileInputStream rdFile = new FileInputStream(new File(createFullPath(fileDescr.getName())));
-            txTask.transmitFile(rdFile, output);
+            try(FileInputStream rdFile = new FileInputStream(new File(createFullPath(fileDescr.getName())))) {
+                txTask.transmitFile(rdFile, output);
+            } catch (FileNotFoundException ex) {
+
+            }
         }
 
     }
