@@ -31,6 +31,8 @@ Func<Long, Long> square = new Func<Long, Long>() {
 long val = square.apply(10L);
 
 ======= Lambda expression
+
+if you want call lambda object use "apply" func:
 Func<Long, Long> square = val -> val * val;
 long val = square.apply(10L);
 
@@ -70,6 +72,64 @@ acceptFunctionalInterface(f);
 
 //or even without reference
 acceptFunctionalInterface(x -> x + 1);
+
+-------------------------------------------------------------------
+Make code clearer with method references:
+Lambda expressions allow you to use code as data and pass it as a method's arguments.
+Another way to use the code as data is writing method references. Often the method references
+are clearer and more readable than coresponding lamda expressions.
+
+For example, sometimes a lambda expression is just a call to a method:
+
+Consumer<String> printer = str -> System.println(str)
+
+To make code clearer we can use a reference to a method by its name:
+
+Consumer<String> printer = System.out::println;
+
+The Consumer is a functional interface with a single abstract method accept which takes a
+valueof type T and returns nothing. 
+
+The base syntax of a method looks like:
+
+something::methodName ,where something can be a class name or a particular instance.
+
+1) Reference to a static method:
+    
+    template: ClassName :: staticMethodName
+
+Function<Double, Double> sqrt = Math::sqrt;
+For invoke sqrt method call: sqrt.apply(100.0d);
+
+2) Reference to an istance method of an existing object:
+    template: objectName :: instanceMethodName
+
+Check out the example of a reference to the method nextLine of the class Scanner:
+
+Scanner scanner = new Scanner(System.in);
+
+Supplier<String> lineReader = scanner::nextLine;
+
+Note that Suplier<String> is a functional interface with the single abstract method get which takes
+no arguments and returns a result of the String type:
+
+String firstLine = lineReader.get();
+String secondLine = lineReader.get();
+
+3) Reference to an instance method of an object of a particular type:
+    template: ClassName :: instanceMethodName
+
+    Function<Long, Double> converter = Long::doubleValue;
+    converter.apply(100L); // the result is 100.0d
+    converter.apply(200L); // the resutl is 200.0d
+
+4) Reference to a constructor
+    template: ClassName :: new
+
+    Supplier<String> generetor = String::new
+
+
+
 
 
 
