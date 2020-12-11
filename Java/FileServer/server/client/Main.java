@@ -32,7 +32,8 @@ public class Main {
 
     private static String getFileNamePath(String fileName) {
         //return Paths.get("").toAbsolutePath().toString() + "\\File Server\\task\\src\\client\\data\\" + fileName;
-        return "c:\\Users\\Dmitriy\\IdeaProjects\\File Server\\File Server\\task\\src\\client\\data\\" + fileName;
+        //return "c:\\Users\\Dmitriy\\IdeaProjects\\File Server\\File Server\\task\\src\\client\\data\\" + fileName;
+        return "c:\\Users\\sysoevd\\IdeaProjects\\File Server\\File Server\\task\\src\\client\\data\\" + fileName;
     }
 
     private static String createRequest(String request, String fileName ,boolean isNameID) {
