@@ -22,6 +22,7 @@ public class Server {
             DataInputStream sockInp = new DataInputStream(socket.getInputStream());
             DataOutputStream sockOut = new DataOutputStream(socket.getOutputStream())) {
 
+            System.out.println("Server started!");
             //Read data from client and out it to console
             Thread readInput = new Thread(() -> {
                 while(true) {
@@ -35,6 +36,7 @@ public class Server {
             readInput.start();
 
             // server output
+
             while(true) {
                 if (usrInp.isThereUsrInput()) {
                     String input = usrInp.getUsrInput();
