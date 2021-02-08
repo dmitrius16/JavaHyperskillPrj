@@ -1,0 +1,87 @@
+To create function that isn't bound to its name in Kotlin you 
+can create an anonymous one or a lambda expression:
+
+fun(arguments): ReturnType {body} - this one is commonly called an "anonymous function"
+
+{ arguments -> body } - this one is commonly called a lambda expression
+
+For example:
+    fun(a: Int, b: Int): Int {
+        return a * b
+    }
+
+    lambda: 
+    { a: Int, b: Int -> a * b }
+
+Need to add if you want to declare a lambda without arguments, you do not need
+to write the "arrow symbols": { body }
+
+val mul1 = fun(a: Int, b: Int): Int {
+    return a * b
+}
+
+val mul2 = {a: Int, b: Int -> a * b}
+
+println(mul1(2, 3))
+println(mul2(2, 3))
+
+Syntactic sugar:
+
+fun isNotDot(c: Char): Boolean = c != '.'
+val originalText = "I don't know ... what to say ..."
+val textWithoutDots = originalText.filer(::isNotDot)
+
+Rewrite it to pass lambda
+val originalText = "I don't know... what to say..."
+val textWithoutDots = originalText.filter({ c: Char -> c != '.' })
+
+Kotlin infers types of many objects, and here specifying the c type isn't necessary:
+originalText.filter({ c -> c != '.' })
+
+There are situations when the lambda is passed as the last argument. Kotlin provides a 
+way to eliminate these bracket sequences ({}), allowing to write the lambda outside the 
+parentheses:
+
+originalText.filter() { c -> c != '.' }
+
+if the parentheses are left empty after this operation, you can remove them:
+
+originalText.filter { cv-> c != '.' }
+
+Finally, when there is a single parameter in a lambda, there is an opportunity to skip it.
+The parameter is svailable under the it name. The final version of the code that removes dots is this:
+
+val originalText = "I don't know... what to say..."
+val textWithoutDots = originalText.filter { it != '.'}
+
+Complex lambdas:
+if a lambda isn't short enough to be fit in one line, so you need to split the code into lines.
+In this case, the last line inside lambda is treated as the lambda RETURN VALUE:
+
+val textWithoutSmallDigits = originalText.filter {
+    val isNotDigit = !it.isDigit()
+    val stringRepresentation = it.toString()
+
+    isNotDigit || stringRepresentation.toInt() >= 5
+}
+
+Also lambda can containe earlier returns. They must be written using the qualified return syntax. 
+This means that after the return keyword the @ symbol and the label name are written. The label name
+is usually the function name where the lambda was passed. Let's rewrite the previous lambda without
+changing its result:
+
+val textWithoutSmallDigits = originalText.filter {
+    if (!it.isDigit()) {
+        return@filter true
+    }
+    it.toString().toInt() >= 5
+}
+
+
+
+
+
+
+
+
+

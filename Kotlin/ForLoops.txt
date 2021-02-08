@@ -1,0 +1,33 @@
+Here must be block theory about for in range
+
+for (i in 1..10)
+
+for (i in 10 downTo 1) //backward order
+
+
+for (i in 1 until 10) //excluding the upper limit
+
+for (i in 1..7 step 2) // specifying step
+
+Iterating through an array:
+
+    Suppose we have an array with days of a week. Let's print each days
+
+    fun main() {
+        val daysOfWeek = arrayOf("Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat")
+
+        for (day in daysOfWeek) {
+            printLn(day)
+        }
+    }
+
+    This program prints:
+    Sun
+    Mon
+    Tues
+    Wed
+    Thur
+    Fri
+    Sat
+    
+

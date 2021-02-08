@@ -1,0 +1,106 @@
+Kotlin provides many tipes for representing arrays:
+* IntArray
+* LongArray
+* DoubleArray
+* ....
+* BooleanArray
+
+To create an array of a specified type, we need to invoke a special function and pass all
+the elements to store them together:
+
+intArrayOf creates IntArray, charArrayOf creates charArrayOf, doubleArrayOf creates DoubleArray
+
+For example let's create three arrays:
+
+    val numbers = intArrayOf(1, 2, 3, 4, 5)
+    println(numbers.joinToString)
+
+    val characters = charArrayOf('K', 't', 'l') 
+    println(characters.joinToString)
+
+    val doubles = doubleArrayOf(1.25, 0.17, 0.4)
+    println(doubles.joinToString)
+
+Create an array with a specified size 
+
+    val numbers = IntArray(5)
+    println(numbers.joinToString()) \\println 0, 0, 0, 0, 0
+
+    val double  = DoubleArray(7)
+    println(doubles.joinToString()) \\0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+The size of an array
+
+    val numbers = intArrayOf(1, 2, 3, 4, 5)
+    println(numbers.size)
+
+
+first(), last() - convenient ways to access the first and last elements
+lastIndex property return last valid index of array.
+
+
+Comparing arrays
+To compare two arrays, invoke the contentEquals() function of an array passing one as the argument.
+
+val numbers1 = intArrayOf(1, 2, 3, 4)
+val numbers2 = intArrayOf(1, 2, 3, 4)
+val numbers3 = intArrayOf(1, 2, 3)
+println(numbers1.contentEquals(numbers2)) \\true
+println(numbers1.contentEquals(numbers3)) \\false
+
+DO NOT USE THE OPERATORS == and != for comparing arrays.
+They do not compare the content of arrays, only that the variables point to the
+same object:
+
+val simpleArray = intArrayOf(1, 2, 3, 4)
+val similarArray = intArrayOf(1, 2, 3, 4)
+
+println(simpleArray == simpleArray) // true, simpleArray points to the same object
+println(simpleArray == similarArray) // false, similarArray points to another object
+
+String arrays:
+
+    Kotlin does not provide a special function to create an array of strings, so you 
+    need to use the function arrayOf.
+
+    val stringArray = arrayOf("array", "of", "strings")
+
+        Basically, the function arrayOf is universal: you can use it to collect any type of data in 
+        an array, including String
+
+        If you want to achieve strict behavior by explicitly defining the type, you can do it like this:
+
+    val stringArray = arrayOf<String>("array", "of", "strings")
+
+        You can also initialize an empty array to be filled with strings later.
+
+    val newEmptyArray = emptyArray<String>()
+
+Working with multiple arrays
+
+    * String arrays can be added
+
+    val southernCross = arrayOf("Acrux", "Gacrux", "Imai", "Mimosa")
+    val stars = arrayOf("Ginan", "Mu Crucis")
+
+    val newArray = southernCross + stars
+    println(newArray.joinToString()) // Acrux, Gacrux, Imai, Mimosa, Ginan, Mu Crucis
+
+    for compare arrayse use "contentEquals" function
+
+Changing the array contents:
+    No matter if you're using val or var, you can edit the valus of the existing elements through their index.
+
+    val southernCross = arrayOf("Acrux", "Gacrux", "Imai")
+    var stars = arrayOf("Ginan", "Mu Crucis")
+
+    southernCross[1] = "star"
+    stars[1] = "star"
+
+Add elements to empty array:
+    var southernCross = emptyArray<String>()
+    southernCross += "Acrux"
+    southernCross += "Gacrux"
+    ...
+Even if your array is not empty to begin with, you can still add elements in the same way!!!
+
