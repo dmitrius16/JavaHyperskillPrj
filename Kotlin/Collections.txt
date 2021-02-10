@@ -1,0 +1,97 @@
+1.List 
+
+List is immutable collection based on Array.
+
+val cars = listOf<String>("BMW", "Honda", "Mercedes")
+
+    1.2 List is a generic type. As you saw from the previous examples, you can initialize it with the help
+    of listOf<E>, where E is the type of elements contained in the list:
+
+    val textUsMethod = listOf<String>("SMS", "Email")
+
+    The type can also be derived from the context:
+
+    val textUsMethod = listOf("SMS", "Email")
+
+    val staff = emptyList<String>()
+    println(staff)  //output: []
+
+    1.3. Methods and properties
+
+    size - returns the size of your List.
+    isEmpty() shows whether the list is empty or not.
+
+    Also, List has a method get(index), that returns the element in that position.
+
+    1.4. Iteratin through elements
+
+    val participants = listOf("Fred", "Emma", "Isabella")
+
+    for (participant in participants) {
+        println("Hello $participant!")
+    }
+    
+2. Mutable List
+
+    2.1 MutableList is based on Array, just like List.
+    
+    val places = mutableListOf<String>("Paris", "Moscow", "Tokyo")
+    places.add("Saint-Peterburg")
+    println(places) //// output: [Paris, Moscow, Tokyo, Saint-Petersburg]
+    
+    2.2 Initializing mutable list
+    
+    val cars = mutableListOf("Ford", "Toyota", "Audi", "Mazda", "Tesla")
+        That is it! Here, we didn't even need to specify the type for our objects because it can be derived from context.
+        
+        However, note that if you create an empty MutableList, you do have to specify the type:
+    
+    val cars = mutableListOf<String>()
+    
+    To transform List into MutableList use toMutableList
+    
+    val cars = listOf("Ford", "Toyota").toMutableList()
+    cars.add("Tesla")
+    println(cars)// output: [Ford, Toyota, Tesla]
+    
+    2.3 Adding and replacing elements
+    
+    MutableList has the same properties and methods as List: size, get(index),
+    isEmpty(), indexOf(element), contains(element) and so on 
+    
+    Since MutableList is special because it can be modified, it has additional functionality for changing the contents:
+    
+    * add(element)
+    * set(index, element)
+    * addAll(elements)
+    
+    Let's take a look at some examples:
+    
+    val finalList = products.toMutableList()
+    finalList.add("Chips")
+    finalList.set(0, "Water")
+    println(finalList) // output: [Water, Cheese, Coke, Chips]
+    
+    2.4 Removing elements
+    
+    *removeAt(index) - remove an element at a specified index.
+    *remove(element) - remove the specified element/
+    *clear() - removes all elements from the current collection.
+    
+    val products = mutableListOf("Milk", "Cheese", "Coke")
+
+    products.removeAt(0)
+    println(products) // output: [Cheese, Coke]
+
+    products.remove("Coke")
+    println(products) // output: [Cheese]
+
+    products.clear()
+    println(products) // output: []
+    
+    2.5 Iterating through elements the same as array and immutable list
+    
+    
+    
+    
+
