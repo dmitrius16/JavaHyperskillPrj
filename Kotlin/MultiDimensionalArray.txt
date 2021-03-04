@@ -1,0 +1,73 @@
+Creating 2-dimensional arrays
+
+Let's create a two-dimensional array of Int with 3 rows and 4 columns where all
+elements are 0's (zeros)
+
+ val array2D  = arrayOf(
+    arrayOf(0, 0, 0, 0),
+    arrayOf(0, 0, 0, 0), 
+    arrayOf(0, 0, 0, 0)
+ )
+ 
+ !!! nested arrays do not necessarily have to be the same size. In the example below,
+ each new embedded array has different length:
+ 
+ val array2D = arrayOf(
+    arrayOf(0),
+    arrayOf(1, 2),
+    arrayOf(3, 4, 5))
+ 
+ 
+ Accessing elements:
+ 
+ val array2D = arrayOf(
+    arrayOf(0, 1, 2),
+    arrayOf(3, 4, 5)
+ )
+ 
+ println(array2D[1][1]) //4
+ 
+ Creating 2D arrays of different types:
+ 
+    val arrayOfString2D = arrayOf( 
+        arrayOf<String>("to", "be", "or"), 
+        arrayOf<String>("not", "to", "be")
+    )
+ 
+ In order to create nested arrays of primitives, you can use arrays of a certain type,
+ as we did for one-dimensional arrays: IntArray, LongArray, DoubleArray, FloatArray, CharArray etc
+ 
+ Example:
+ val arrayOfChar2D = arrayOf(
+    charArrayOf('A', 'R', 'R'),
+    charArrayOf('A', 'Y', 'S')
+ )
+ 
+ Also nested arrays can be of different types.
+ 
+ val arrayOfString2D = arrayOf(
+    arrayOf("Practice", "makes", "perfect"), 
+    arrayOf(1, 2)
+ )
+ 
+ Features of working with 2D arrays
+ 
+ Let's look at some useful and interesting features of working with two-dimensional arrays.
+ You remember that we can print all the elements of the array as a string using the joinToString() function.
+ For nested arrays, it will also work. Only now you must specify the index of the nested array:
+ 
+ val arrayString = arrayOf(arrayOf("A", "R", "R", "A", "Y")
+ print(arrayString[0].joinToString()) //A, R, R, A, Y
+ 
+ In the case of multi-dimensional arrays, this will  not always be convenient. In order to get all array contents in 
+ a single string, you can use the function contentDeepToString()
+ 
+ val arrayOfChar2D = arrayOf(
+    charArrayOf('k'),
+    charArrayOf('o', 't'), 
+    charArrayOf('l', 'i', 'n'))
+    
+ println(arrayOfChar2D.contentDeepToString()) //[[k], [o,t], [l, i, n]]
+ 
+ 
+ 
