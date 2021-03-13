@@ -13,13 +13,13 @@ intArrayOf creates IntArray, charArrayOf creates charArrayOf, doubleArrayOf crea
 For example let's create three arrays:
 
     val numbers = intArrayOf(1, 2, 3, 4, 5)
-    println(numbers.joinToString)
+    println(numbers.joinToString())
 
     val characters = charArrayOf('K', 't', 'l') 
-    println(characters.joinToString)
+    println(characters.joinToString())
 
     val doubles = doubleArrayOf(1.25, 0.17, 0.4)
-    println(doubles.joinToString)
+    println(doubles.joinToString())
 
 Create an array with a specified size 
 

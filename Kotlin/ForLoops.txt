@@ -29,5 +29,12 @@ Iterating through an array:
     Thur
     Fri
     Sat
-    
+
+Iterating through array by indices
+    See above for defenition daysOfWeek
+
+    for(index in daysOfWeek.indices) {
+        printLn("$index: ${daysOfWeek[index]})
+    }
+
 

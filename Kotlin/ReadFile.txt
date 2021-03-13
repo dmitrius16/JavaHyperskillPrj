@@ -1,0 +1,47 @@
+The core class for file processing is File from java.io
+Kotlin privides additional functionality over Java implementation through Extension Functions.
+
+Extension Functions:
+
+* readText() - read the whole file in just one String variable.
+
+Say we create a text file reading.txt with the following text:
+    Kotlin or Java, 
+    Java or C++
+
+We put it in src folder, and now we can read it with out readText method:
+
+    val fileName = "src/reading.txt"
+    val lines = File(fileName).readText()
+    print(lines)
+
+    or we can create reference first and then read the text later:
+
+    val fileName = "src/new.txt"
+    val file = File(fileName)
+    val lines = file.readText()
+    print(lines)
+
+We can also provide specific charset for reading the file:
+    
+    val line = File(fileName).readText(Charsets.US_ASCII)
+
+    Just keep in mind that by default readText() has UTF-8 charset.
+
+!!!! We can use any method from File !!!!
+
+* readLines() - provides the functionality of reading file for each line and store it in List:
+
+    val fileName = "src/reading.txt"
+    val lines = File(fileName).readLines()
+    for (line in lines) {
+        println(line)
+    }
+
+* readBytes() - store byte array
+
+* forEachLine() is recommended way of reading large files:
+    val fileName = "src/reading.txt"
+    File(fileName).forEachLine {println(it)}
+
+    

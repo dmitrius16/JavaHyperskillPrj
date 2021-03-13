@@ -1,0 +1,31 @@
+Creating 2-dimensional arrays
+
+val array2D = arrayOf(arrayOf(0, 0, 0, 0),
+                      arrayOf(0, 0, 0, 0),
+                      arrayOf(0, 0, 0, 0), 
+                      arrayOf(0, 0, 0, 0)
+                      )
+
+    Note an interesting feature: nested arrays do not necessarily have to be the same size.
+    val array2D = arrayOf(
+        arrayOf(0), 
+        arrayOf(1, 2), 
+        arrayOf(3, 4, 5)
+    )
+
+    Printing 2-D arrays
+
+    val arrayString = arrayOf(
+        arrayOf("A", "R", "R", "A", "Y")
+    )
+    print(arrayString[0].joinToString()) // A, R, R, A, You
+
+    In the case of multi-dimensional arrays, this will not always be convenient. In order to get
+    all array contents in a single string, you we can use the functiono contentDeepToString():
+
+    val aarayOfChar2D = arrayOf(
+        charArrayOf('k'), 
+        charArrayOf('o', 't'),
+        charArrayOf('l', 'i', 'n'))
+    
+    println(arrayOfChar2D.contentDeepToString())  //[[k], [o, t], [l, i, n]]
