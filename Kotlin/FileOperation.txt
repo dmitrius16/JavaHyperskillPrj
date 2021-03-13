@@ -1,0 +1,29 @@
+1. readText
+
+    First, there is readText() which helps you read the whole file in just one String variable
+    
+    Say we create a text file reading.txt with the following text: 
+        
+        Kotlin or Java, 
+        Java or C++.
+        
+        We put it in src folder, and now we can read it with our readText method:
+           
+        val fileName = "src/reading.txt"
+        val lines = File(fileName).readText()
+        print(lines)
+        
+        we also can create reference to File variable:
+        
+        val file = File(fileName)
+        val lines = file.readText()
+        
+        readText - automatically opened and closed the file !!!
+        
+        val line = File(fileName).readText(Charsets.US_ASCII)
+        
+        Just keep in mind tha by default readText() has UTF-8 charset encoding
+        
+        DON'T USE THIS FUNCTION WITH FILES LARGER THAN 2 Gb -> it can cause OutOfMemoryError.
+        
+        We can also check the existence of a file with exists() method.

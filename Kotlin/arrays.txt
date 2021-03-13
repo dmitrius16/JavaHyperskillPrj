@@ -1,4 +1,4 @@
-Kotlin provides many tipes for representing arrays:
+Kotlin provides many types for representing arrays:
 * IntArray
 * LongArray
 * DoubleArray

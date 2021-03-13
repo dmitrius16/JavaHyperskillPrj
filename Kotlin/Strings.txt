@@ -1,0 +1,84 @@
+Strings Kotlin
+
+1. The length of a string:
+
+val language = "Kotlin"
+prtinln(language.length)
+
+val empty = ""
+println(empty.length)
+
+2. Accessing characters is trivial 
+
+val greeting = "Hello" 
+
+val first = greeting[0] //'H'
+val second = greeting[1] //'e'
+
+3 Concatenating
+
+val str1 = "ab"
+val str2 = "cde"
+val result = str1 + str2 //abcde
+
+4. Append values to string 
+
+val str = "abc" + 10 + true
+println(str) //abc10true
+------------------------------------
+val code = "123" + 456 + "789"
+println(code) //123456789
+------------------------------------
+val str = 10 + "abc" // error here
+------------------------------------
+val str = "abc" + 11 + 22
+println(str) //abc1122
+
+Comparing strings:
+
+val first = "first"
+val second = "second"
+val str = "first"
+
+println(first == str) //true
+println(first == second) // false
+println(first != second) //true
+
+5. String templates.
+val city = "Paris"
+val temp = "24"
+
+println("Now, the temperature in $city is $temp degrees Celsius.")
+
+5.1 Templates for expressions
+
+val language = "Kotlin"
+println("$language has ${language.length} letters in the name")
+
+
+6. Getting a part of a string
+
+Examples:
+val greeting = "Hello"
+println(greeting.substring(0, 3)) // "Hel"
+println(greeting.substring(1, 3)) // "el"
+println(greeting.substring(2))  // "llo"
+println(greeting.substring(4, 5)) // "o"
+
+
+The substring method is not the only way to get part of a string. You can also use the 
+substringAfter and substringBefore functions:
+
+println(greeting.substringAfter('l')) // "lo"
+println(greeting.substringBefore('o')) // "Hell"
+println(greeting.substringBefore('z')) // "Hello"
+
+Just keep in mind that as a second argument, you can specify what's returned if the delimiter is not 
+present in the string. For example, .substringBefore('z', "can't find a character")
+
+The functions substringBeforeLast and substringAfterLast have similar logic as substingBefore
+and substringAfter but return a string before or after the last occurrence of the delimiter.
+
+println(greeting.substringAfterLast('l')) //"o"
+println(greeting.substringBeforeLast('l')) // "Hel"
+
