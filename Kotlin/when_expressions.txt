@@ -1,0 +1,129 @@
+When - this construction can replace multi-branch if expression and make your code more 
+readable and easier to understand.
+
+Matching against multiple alternatives
+
+fun main() {
+    val (var1, op, var2) = readLine()!!.split(" ")
+
+    val a = var1.toInt()
+    val b = var2.toInt()
+
+    when (op) {
+        "+" -> println(a + b)
+        "-" -> println(a - b)
+        "*" -> println(a * b)
+        else -> println("Unknown operator")
+    }
+}
+
+if there are several cases to handle in the same way, you can combine them with a comma.
+In one branch you can combine as many values as you need. Here you can see a modified code snipped form the 
+previous program.
+
+when (op) {
+    "+", "plus" -> println(a + b)
+    "-", "minus" -> println(a - b)
+    "*", "times" -> println(a * b)
+    else -> println("Unknown operator")
+}
+
+We can also use complex blocks with multiple statements as branches:
+
+when (op) {
+    "+", "plus" -> {
+        val sum = a + b
+        println(sum)
+    }
+    "-", "minus" -> {
+        val diff = a - b
+        println(diff)
+    }
+    "*", "times" -> {
+        val product = a * b
+        println(product)
+    }
+    else -> println("Unknown operator")
+}
+
+When as an expression
+
+when can be used as an expression that returns a result. In example below, every branch returns a result
+of the corresponding operation. 
+
+val result = when (op) {
+    "+" -> a + b
+    "-" -> a - b
+    "*" -> a * b 
+    else -> "Unknown operator"
+}
+println(result)
+
+we don't even have to declare an additional variable and immediately pass the result to a function. You 
+can see an example below:
+
+println(when(op) {
+    "+" -> a + b 
+    //...
+    else -> "Unknown operator"
+})
+
+if a branch contains a block with multiple statements enclosed in {...}, the last line must be a single value or a 
+complex expression that is to perform and returned as the result of the when expression. example
+
+"+" -> {
+    val sum = a + b 
+    sum
+}
+
+
+Branch conditions and ranges
+
+fun main() {
+    val (var1, var2, var3) = "2 2 4".split(" ")
+    
+    val a = var1.toInt()
+    val b = var2.toInt()
+    val c = var3.toInt()
+    
+    println(when (c) {
+        a + b -> "$c equals $a plus $b"
+        a - b -> "$c equals $a minus $b"
+        a * b -> "$c equals $a times $b"
+        else -> "We do not know how to calculate $c"
+    })
+}
+
+Check if a value belongs to a ranges
+
+when (n) {
+    0 -> println("n is zero")
+    in 1..10 -> println("n is between 1 and 10 (inclusive)")
+    in 25..30 -> println("n is between 25 and 30 (inclusive)")
+    else -> println("n is outside a range")
+}
+
+YOU CAN ALSO COMBINE RANGES WITH A COMMA JUST LIKE SINGLE VALUES:
+
+in a..b, in c..d -> println("n belongs to a range")
+
+
+When without argument 
+
+
+in this case, every branch condition is a simple boolean expression, and a branch is executed when its condition is true
+
+fun main() {
+    val n = readLine()!!.toInt()
+
+    when {
+        n == 0 -> println("n is zero")
+        n in 100..200 -> println("n is between 100 and 200")
+        n > 300 -> println("n is greater than 300")
+        n < 0 -> println("n is negative")
+        //else branch is optional here
+    }
+}
+
+
+

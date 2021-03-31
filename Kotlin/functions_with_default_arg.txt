@@ -1,0 +1,4 @@
+
+The idea the same as c++
+
+fun printLine(line: String = "", end: String = "\n") = print("$line$end")

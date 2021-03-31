@@ -1,0 +1,56 @@
+Defining classes:
+
+class Size {
+    var width: Int = 1
+    var height: Int = 1
+}
+
+Create instance of class:
+
+val size = Size()
+
+Primary constructor. It does not contain any code, it just initializes an instance of a class and its properties.
+
+class Size(width: Int, height: Int) {
+    val width: Int = width
+    val height: Int = height
+    val area: Int = width * height
+}
+
+Property declaration:
+You can put simple property declaration inside the primary constructor. To declare a read-only property, put
+the keyword val in the parentheses before the argument name. For a mutable property, use keyword var
+
+class Size(val width: Int, height: Int) {
+    val height: Int = height
+    val area: Int = width * height
+}
+
+Default and named arguments alse works
+
+Single line classes a.k.a data classes
+
+class Size(val: width, val: height)
+
+Primary constuctors cannot contain any code: they only set the values of class properties based on the 
+passed arguments. Sometimes we want to set some of our properties based on other properties' values or other
+sources of information. In such cases, we would use initializer blocks, which are prefixed with the keyword init:
+
+class Size(_width: Int, _height: Int) {
+    var width: Int = 0
+    var height: Int = 0
+
+    init {
+        width = if (_width >= 0) _width else {
+            println("Error, the width should be a non-negative value")
+            0
+        }
+
+        height = if (_height >= 0) _height else {
+            println("Error, the height should be a non-negative value")
+            0
+        }
+    }
+}
+
+The keyword init signifies a block of code that serves as an extension of the primary constructor.
