@@ -1,0 +1,30 @@
+
+class Client {
+    val name = "Unknown"
+}
+
+val client = Client()
+
+Suppose we want to get value of property name:
+
+    println(client.name)
+    
+In fact, when you want to get the value of some property, you call a special
+get() function called getter. This is what actually look like:
+
+class Client {
+    val name = "Unknown"
+        get() {
+            return field
+        }
+}
+
+or with ommited curly brackets 
+
+class Client {
+    val name = "Unknown"
+    get() = field
+}
+
+In this case, getter just returns the value of the name variable. This is the expected
+behavior, so Kotlin generates this function for us. YOU DON'T NEED TO WRITE IT!
