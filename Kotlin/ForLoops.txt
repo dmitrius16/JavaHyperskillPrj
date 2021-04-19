@@ -1,3 +1,15 @@
+repeat(5) {
+    println("Hello, kotlin)
+}
+
+outout
+Hello, kotlin
+Hello, kotlin
+Hello, kotlin
+Hello, kotlin
+Hello, kotlin
+
+
 Here must be block theory about for in range
 
 for (i in 1..10)
