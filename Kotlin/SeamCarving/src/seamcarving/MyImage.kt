@@ -28,18 +28,26 @@ class MyImage(val image: BufferedImage) {
         val colorContentBefore = intArrayOf(colorBefore.red, colorBefore.green, colorBefore.blue)
         val colorContentAfter = intArrayOf(colorAfter.red, colorAfter.green, colorAfter.blue)
         var gradient: Double = 0.0
-        for (i in 0..3) {
+        for (i in 0..colorContentBefore.lastIndex) {
             gradient += (colorContentAfter[i] - colorContentBefore[i]).toDouble().pow(2)
         }
         return gradient
     }
 
-    fun calcPixelEnergy(_x: Int, _y: Int): Double {
-        val x = if(_x == 0) 1 else _x
-        val y = if(_y == 0) 1 else _y
+    private fun calcPixelEnergy(_x: Int, _y: Int): Double {
+        val x = when(_x) {
+            0 -> 1
+            (image.width - 1) -> image.width - 2
+            else -> _x
+        }
+        val y = when(_y) {
+            0 -> 1
+            (image.height - 1) -> image.height - 2
+            else -> _y
+        }
 
         var pxColorBefore: Color = Color(image.getRGB(x - 1, y))
-        var pxColorAfter: Color = Color(image.getRGB(x - 1, y))
+        var pxColorAfter: Color = Color(image.getRGB(x + 1, y))
 
         val gradX = calcSquareGradient(pxColorBefore, pxColorAfter)
 
@@ -49,5 +57,31 @@ class MyImage(val image: BufferedImage) {
         val gradY = calcSquareGradient(pxColorBefore, pxColorAfter)
 
         return (gradX + gradY).pow(0.5)
+    }
+
+    fun calcImageEnergy(): BufferedImage {
+        val energyImage = BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB)
+        val pixelEnergies: DoubleArray = DoubleArray(image.width * image.height)
+        var maxEnergy: Double = Double.MIN_VALUE
+        // calc every pixel energy
+        for (y in 0 until image.height) {
+            for (x in 0 until image.width) {
+                val curEnergy =  calcPixelEnergy(x, y)
+                pixelEnergies[y * image.width + x] = curEnergy
+                if (curEnergy > maxEnergy) {
+                    maxEnergy = curEnergy
+                }
+            }
+        }
+        //make image
+
+        for (y in 0 until image.height) {
+            for (x in 0 until image.width) {
+                val intensity = (255.0 * pixelEnergies[y * image.width + x] / maxEnergy).toInt()
+                val pxColor: Color = Color(intensity, intensity, intensity)
+                energyImage.setRGB(x, y, pxColor.rgb)
+            }
+        }
+        return energyImage
     }
 }
