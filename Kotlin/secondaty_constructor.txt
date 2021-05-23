@@ -1,0 +1,93 @@
+1. Custom constructor
+
+    To declare a secondaty constructor, write the keyword constructor inside the class body and
+    parentheses with the consturctor's parameters after keyword. 
+
+    class Size {
+        var width: Int = 0
+        var height: Int = 0
+
+        constructor(_width: Int, _height: Int) {
+            width = _width
+            height = _height
+        }
+    }
+
+2. Multiple constructors:
+
+    class Size {
+        var width: Int = 0
+        var height: Int = 0
+
+        constructor(_height: Int) {
+            height = _height
+        }
+
+        constructor(_width: Int, _height: Int) {
+            width = _width
+            height = _height
+        }
+
+        constructor(_height: Double, _width: Int) {
+            width = _width
+            height = _height.toInt()
+        }
+    }
+
+3. this keyword
+
+class Size {
+    var width: Int = 0
+    var height: Int = 0
+
+    constructor(width: Int, height: Int) {
+        this.width = width
+        this.height = height
+    }
+}
+
+4. Constructor execution
+
+If a class has a primary constructor, each secondary constructor needs to call the primary constructor,
+either directly or indirectly through another secondary constructor(s). This is calles - delegation
+
+Delegation to the primary constructor becomes the first statement of a secondary constructor, so the initializer
+blocks and property initialization are executed before the secondary constructor code.
+
+
+    class Size(val width: Int, val heigh: Int) {
+        var area: Int = width * heigh
+
+        init {
+            println("Object with area equal to $area is created")
+        }
+
+        constructor(width: Int, height: Int, outerSize: Size): this(width, height) {
+            outerSize.area -= this.area
+            println("Updated outer object's area is equal to ${outerSize.area})
+        }
+    }
+
+If a class has no primary constructor, the delegation still happens implicitly, and initializer blocks are still executed:
+
+class Size {
+    var width: Int = 0
+    var height: Int = 0
+
+    init {
+        println("Init block; width = $width, height = $heigth")
+    }
+
+    constructor(width: Int, height: Int) {
+        this.width = width
+        this.height = height
+        println("Secondaty constructor block; width = $width, heigth = $height")
+    }
+}
+
+val size = Size(5, 6)
+
+The output for the code above will be the following:
+    >Init block; width = 0, height = 0
+    >Secondary constructor block; width = 5, height = 6
+
