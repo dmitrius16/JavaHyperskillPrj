@@ -1,0 +1,98 @@
+Pandas
+    
+1. Series. Series is a one-dimensional array.
+    Every element stored in a Series is associated with a label called index.
+    By default, this index is just the sequence 0, 1, 2,...
+
+Example:
+    import pandas as pd
+
+    ages_list = [21, 20, 25, 22]
+    names_list = ['Anna', 'Bob', 'Maria', 'Jack']
+
+    ages_series = pd.Series(ages_list, index=names_list, name='Age')
+
+    # Anna  21
+    # Bob   20
+    # Maria 25
+    # Jack  22
+    # Name: Age, dtype: int64
+
+Similary we can convert a Python dictionary into a Series object.
+Dictionary keys will automatically become the indexes in the new Series.
+
+Example:
+    student_ages_dict = {'Anna': 21, 'Bob': 20, 'Maria': 25, 'Jack': 22}
+    ages_series = pd.Series(student_ages_dict, name='Ages')
+
+You can always change index later by modifying the index attribute of the Series:
+
+    ages_series.index = ['A', 'B', 'M', 'J']
+    print(ages_series)
+
+    # A   21
+    # B   20
+    # M   25
+    # J   22
+    # Names: Ages, dtype: int64
+
+Modifying a Series object 
+    Series is value-mutable; we can easily change the values stored in a Series,
+    for example by accessing them by index. To illustrate this, let's update Jack's age:
+
+    ages_series['Jack'] = 23
+    print(ages_series)
+
+    # Anna  21
+    # Bob   20
+    # Maria 25
+    # Jack  23
+    # Name: Age, dtype: int64
+
+Series doesn't size mutable
+
+For add or drop value from series new Series object needed:
+
+    new_ages_series = ages_series.drop(index='Maria')
+    print(new_ages_series)
+
+    # Anna 21
+    # Bob  20
+    # Jack 23
+    # Name: Ages, dtype: int64
+
+!!! Note that the original Series remaind unchanged
+
+If you want the returned Series to be automatically assigned to the original one, you can specify
+the optional inplace parameter to be True:
+
+    ages_series.drop(index='Maria, inplace=True)
+    print(ages_series)
+
+     # Anna 21
+    # Bob  20
+    # Jack 23
+    # Name: Ages, dtype: int64
+
+Operations on Series:
+
+Operations between several Series automatically align the data based on the index.
+    Example: we have two series  algebra ans calculus
+    algebra:                        Calculus:
+    Bob    90                       Anna   100
+    Anna   50                       Bob     90
+    Maria 100                       Jack    70
+    Jack   90                       Maria   80
+    Name: Algebra, dtype: int64     Name: Calculus, dtype: int64
+
+    Compute the average score students got for the two exams:
+
+    average = 0.5*(algebra + calculus)
+
+    Anna  75
+    Bob   90
+    Jack  80
+    Maria 90
+    dtype: float64
+    
+If series unaligned we get NaN
