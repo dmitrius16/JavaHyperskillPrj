@@ -1,0 +1,9 @@
+Border style:
+    elem {
+        border-style: double;
+    }
+
+Thera next border styles:
+    dotted, dashed, solid, double, groove, ridge, insert, outset:
+    
+
