@@ -1,0 +1,73 @@
+Primary key
+    
+    Sometimes we need to be sure that all the rowa in out table are unique. For example, 
+    we want to store information about the conference participants: their name, email,
+    date of birth etc. In this case, we should find a combination of data that is unique for 
+    each participant. Maybe some people will havae the same name, but they surely won't share
+    the same personal email, so we can use this field as a unique key to prevent creating duplicates.
+    This unique key is commonly called - primary key
+
+PRIMARY KEY CONSTRAINT
+
+    The Primary Key constraint specifies a set columns with values that can help identify
+    any table record.
+
+    This constraint can be specified in the process of creating a table.
+    Example:
+        CREATE TABLE chefs (
+            chef_id INT PRIMARY KEY, 
+            first_name VARCHAR(20),
+            last_name VARCHAR(20)
+        );
+
+    * SINCE THE PRIMARY KEY HAS TO IDENTIFY each table row, it must be unique and can not be NULL!!!
+    * TABLE CAN HAVE ONLY ONE AND ONLY ONE PRIMARY KEY, BUT IT IS ALLOWED TO INCLUDE MULTIPLE COLUMNS IN IT.
+
+    Example:
+        CREATE TABLE employees (
+            department_id INT NOT NULL, 
+            employee_id INT NOT NULL,
+            name VARCHAR(50) NOT NULL
+            CONSTRAINT pk_employee PRIMARY KEY (department_id, employee_id)
+        );
+
+        here we create a named PRIMARY KEY constraint on multiple columns
+            *we can also create a named PRIMARY KEY on one column.
+
+ADD PRIMARY KEY to an existing table
+
+    if we already have a table without a primary key, we can add it using the 
+    ALTER TABLE statement.
+
+    Assume that we have a table named countries that was created as follows:
+
+    CREATE TABLE countries (
+        country_name VARCHAR(40) NOT NULL UNIQUE,
+        population INT CHECK (population>0),
+        area REAL not NULL
+    );
+
+    We want to make the column country_name our primary key:
+
+    ALTER TABLE countries
+    ADD PRIMARY KEY (country_name);
+
+    *The column country_name is already unique and cannot contain null values, so
+    it is safe to make it a primary key of the table countries.
+
+    We can also add a named PRIMARY KEY constrainet to an existing table using 
+    ALTER TABLE ADD CONSTRAINT statement:
+
+    ALTER TABLE students
+    ADD CONSTRAINT pk_student PRIMARY KEY (name, birth_date)
+
+DROP PRIMARY KEY
+
+    to drop the PRIMARY_KEY, use ALTER TABLE DROP PRIMARY KEY:
+
+    ALTER TABLE students
+    DROP PRIMARY KEY;
+
+    Since a table can have only one primary key, we don't have to specify the 
+    constraint name.
+
