@@ -1,0 +1,60 @@
+1. Document flow and positioning
+    
+    HTML documents are displayed on the page from top to bottom, so the elements
+    that described higher in the HTML file will be rendered in the browser earlier
+    than those described lower.
+    
+    The order in which the elements are displayed on a page by default is called
+    normal flow. It corresponds to the value of the static position property.
+    Changing the values of that property will change the flow of the document, which
+    is a process called positioning.
+    
+2. Absolute positioning
+    
+    Absolute positioning refers to positioning relative to the bounds of the parent
+    element, out of the normal flow. 
+    
+    element {
+        position: absolute;
+    }
+    
+    If there is no parent element, then it is set relative to the bounds of the browser
+    viewport. So, with absolute positioning, the browser window will act as a parent from 
+    whose borders the distance is set.
+    
+    ------------
+                |
+                |
+    left:100px  | top: 100px
+    ----------->\/ 
+    
+    
+3. Relative positioning:
+    A relatively positioned element is set relative to its original position on the page.
+    Take a look at the syntax:
+    
+    element {
+        position: relative;
+    }
+    
+4. Fixed positioning:
+    This type of positioning is very similar to absolute positioning with one major difference:
+    it locks the element on the page relative to the visible part of the browser's viewport and maintains
+    that position during vertical scrolling. example: https://lh5.googleusercontent.com/PkS2mMjQBq9mKAUfCPq7JqJ5CzUYsxwaHAscoN2NCgVnqhhWk49u_wOavj24FgKdaX7Ulpwup5Y7a7QWM1bi8TD36dy8SC8c4p8W6Q8uew9M8JmBcyCLfBfPVg2IxBDpk4BOwPIa
+    
+    element {
+        position: fixed;
+    }
+    
+5. Sticky positioning:
+
+    It between fixed positioning and relative positioning: the element is positioned relatively until
+    the page is scrolled to a certain point, after which the positioning will be fixed.
+    
+    element {
+        position: sticky;
+    }
+    
+    
+    
+    
