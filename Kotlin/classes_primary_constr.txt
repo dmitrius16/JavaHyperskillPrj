@@ -26,7 +26,7 @@ class Size(val width: Int, height: Int) {
     val area: Int = width * height
 }
 
-Default and named arguments alse works
+Default and named arguments also works
 
 Single line classes a.k.a data classes
 

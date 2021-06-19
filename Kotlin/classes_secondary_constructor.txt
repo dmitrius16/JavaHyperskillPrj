@@ -1,0 +1,82 @@
+Declare secondary constructor:
+
+Example:
+    
+class Size {
+    var width: Int = 0
+    var height: Int = 0
+    
+    constructor(_width: Int, _height: Int) {
+        width = _height
+        height = _height
+    }
+}
+
+Creating objects:
+
+    val size1 = Size(3, 4)
+    val size2 = Size(5, 1)
+
+    if you declare your own constructor you can't use implicit constructor:
+
+    val size = Size() // Error! No values passed for parameters
+
+    I have to explicitly define default constructor
+
+    class Size {
+        var width: Int = 0
+        var height: Int = 0
+        
+        constructor(_width: Int, _height: Int) {
+            width = _height
+            height = _height
+        }
+        
+        constructor() {
+        }
+    }
+
+Constructor execution:
+
+    If a class has a primary constructor, each secondary constructor needs to call the primary constuctor!!!
+    Either directly or indirectly through another secondary constructor.
+
+    Delegation to another constructor of the same class is done with the keyword this placed after the constructor
+    arguments and before the constructor body
+
+    class Size(val width: Int, val height: Int) {
+        var area: Int = width * height
+        
+        init {
+            println("Objects with area equal to $area is created")
+        }
+        
+        constructor(width: Int, height: int, outerSize: Size) : this(width, height) {
+            outerSize.area -= this.area
+            println("Updated outer object's area is equal to ${outerSize.area}")
+        }
+    }
+    
+ if a class has no primary constructor, the delegation still happens implicitly, and initializer blocks are 
+ still executed:
+    class Size {
+        var width: Int = 0
+        var height: Int = 0
+
+        init {
+            println("Init block; width = $width, height = $height")
+        }
+
+        constructor(width: Int, height: Int) {
+            this.width = width
+            this.height = height
+            println("Secondary constructor block; width = $width, height = $height")
+        }
+    }
+ 
+    val size = Size(5, 6)
+Code output:
+    Init block; width = 0, height = 0
+    Secondary constructor block; width = 5, height = 6
+ 
+

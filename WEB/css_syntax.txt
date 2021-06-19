@@ -1,0 +1,33 @@
+Basic syntax:
+    
+    selector { property: value; }
+    
+    1. Selector indicates which HTML elements the styles will be applied to.
+    
+        h1 { color: red; }
+        
+        In this case, the style will apply to all <h1> elements on the page. The text
+        of the <h1> elements will turn red.
+        
+        You can write multiple selectors separated by commas:
+        
+        h1, p { color: red; }
+        
+        Here, styles are applied to two HTML tags at once. All <h1> and <p> elements
+        on the web page will have a red text color.
+        
+    2. Declaration block
+
+        Declaration block contains one or more declarations separated by semicolons. 
+        Several declarations look like this:
+        
+        div {
+            width: 500px;
+            height: 50px;
+            color: yellow;
+        }
+        
+
+        
+       
+        

@@ -1,0 +1,40 @@
+Read csv file:
+    
+    import csv
+    
+    
+    with open("city_info.txt", 'r', newline='') as city_inf:
+        file_reader = csv.reader(city_inf, delimiter=',')
+        for line in file_reader:
+            print(line)
+            
+Write csv file:
+    
+    with open("criminals.csv", "w", encoding='utf-8') as w_file:
+        file_writer = csv.writer(w_file, delimiter=',', lineterminator='\n')
+        file_writer.writerow(["Name", "Age", "Height"])
+        file_writer.writerow(["Alex", "23", "184"])
+        file_writer.writerow(["Tim", "21", "178"])
+
+    
+DictReader vs DictWriter:
+    
+    with open("City_crimes.csv") as crime:
+        file_reader = csv.DictReader(crime, delimiter=',')
+        for line in file_reader:
+            print(line['Crime'], line['Time'], line['District'])  #  Crime, Time, District - head names
+            
+
+DictWriter:
+    
+    with open("criminals.csv", "w", encoding='utf-8') as w_file:
+        names = ["Name", "Age", "Height"]
+        file_writer = csv.DictWriter(w_file, delimiter=",", lineterminator="\n", fieldnames=names)
+        file_writer.writeheader()
+        file_writer.writerows([{"Name": "Alex", "Age": "23", "Height": "184"},
+                            {"Name": "Tom", "Age": "35", "Height": "170"},
+                            {"Name": "Tim", "Age": "21", "Height": "178"}])   
+    
+    
+    
+    

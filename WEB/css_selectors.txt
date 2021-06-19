@@ -1,0 +1,37 @@
+1. CSS element selector
+    CSS element selector are most elementary and easy-to-use selectors.
+    As selector we use the name of the HTML element to which you want to apply it
+
+    p {
+        color: brown;
+    }
+
+2. CSS id selector
+
+    A symbol # is placed in front of it so that the browser understands that this is as id selector
+
+    css file:
+    #big {
+        font-size: 30px;
+    }
+
+    html file:
+    <p id="big">The text of this paragraph will change in font size.</p>
+    <p>This one won't change size.</p>
+    <p>This one won't too.</p>
+
+3. CSS class Selector is useful when you need to give a lot different elements
+the same look. The name of the selector is taken from the value of the class attribute of the desired HTML tag.
+
+    css code:
+    .blue {
+        background-color: blue;
+    }
+
+    html code:
+
+    <h1 class="blue">The background color of this element should be blue.</h1>
+    <p class="blue">This too.</p>
+    <p>And this one will remain without a beautiful background.</p>
+    
+
