@@ -1,0 +1,24 @@
+In the old days of web development, when there were no flexbox and grid properties for
+creating layouts, the float property was widely used.
+
+1. What is float used for?
+    The float property is commonly used when we want a block of text to flow around an image or 
+    want an element to stand next to another element. Some web developers even use it to create layouts, 
+    but properties like XSS flexbox xan do this more efficiently.
+    
+    With the float property defined, an element can be pushed to the left or right, thus allowing the next
+    element on the webpage (or the next element in the flow) to float around it. Float is useful in these situations
+    because no other CSS property can achieve the same result.
+    
+    To work with float, we first need a container. In other words, the element we want to float needs 
+    to be contained within a parent element. Neither the element we want to float or its parent element can have their 
+    position set to absolute because elements with this setting are removed from the flow of the webpage.
+    
+    The values we can use with the float property are as follows:
+    
+        * left: The element will float to the left side of its parent.
+        * rigth: The elment will float to the right side of its parent.
+        * inherit: The element will inherit the float value from its parent.
+        
+    
+    
