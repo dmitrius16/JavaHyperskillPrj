@@ -7,19 +7,27 @@ import java.util.List;
 public class Field {
     private final int sizeField = 10;
     List<Ship> shipsList;
-    private char[][] field;
+    private char[][] myField;
     private char[] cellNeighborVal;
+    private boolean fogOfWarEnable;
     private final char fogOfWar = '~';
     private final char shipPart = 'O';
     private final char propablyShipPart = 'U';
+    private final char missShot = 'M';
+    private final char hitShot = 'X';
+
     public Field() {
-        field = new char[sizeField][sizeField];
+        myField = new char[sizeField][sizeField];
         cellNeighborVal = new char[9];
         for (int i = 0; i < sizeField; i++) {
-            Arrays.fill(field[i], '~');
+            Arrays.fill(myField[i], '~');
         }
         shipsList = new LinkedList<>();
+        fogOfWarEnable = false;
     }
+
+    public void enableFogOfWar() {fogOfWarEnable = true;}
+    public void disableFogOfWar() {fogOfWarEnable = false;}
 
     public FieldErrCode addShip(Ship ship, String coord) {
         // 1 - check input coord, here we can run into two errors: 1 - error format, 2 - out of field
@@ -31,12 +39,13 @@ public class Field {
         // checkOutOfField
         FieldErrCode err = FieldErrCode.ERR_UNDEFINED;
         if (ship != null && coord != null) {
-            if (checkCoordFormat(coord)) {
+            if (checkShipCoords(coord)) {
                 Ship.ShipCoord shipCoord = convertStrToShipCoord(coord);
                 if (shipCoord.isHorizontalPlacement() != shipCoord.isVerticalPlacement()) {
                     if (ship.getShipLen() == shipCoord.getLen()) {
                         // check location relatively other ships
                         if (tryLocateShips(shipCoord)) {
+                            ship.setShipCoord(shipCoord);
                             shipsList.add(ship);
                             err = FieldErrCode.SUCCESS;
                         } else {
@@ -49,7 +58,7 @@ public class Field {
                     err = FieldErrCode.ERR_WRONG_SHIP_LOCATION;
                 }
             } else {
-                err = FieldErrCode.ERR_COORD_FORMAT;
+                err = FieldErrCode.ERR_COORD;
             }
         }
         return err;
@@ -62,11 +71,47 @@ public class Field {
         for (int i = 0; i < sizeField; i++) {
             System.out.print(stSym + " ");
             for (int j = 0; j < sizeField; j++) {
-                System.out.print(field[i][j] + " ");
+                if (fogOfWarEnable && myField[i][j] == shipPart) {
+                    System.out.print(fogOfWar + " ");
+                } else {
+                    System.out.print(myField[i][j] + " ");
+                }
             }
             System.out.println();
             stSym += 1;
         }
+    }
+
+    public ShotStatus makeShot(String coord) {
+        if (!checkCoord(coord)) {
+            return ShotStatus.WRONG_COORDINATE;
+        }
+        Coord shotCoord = convertStrToCoord(coord);
+        ShotStatus res = ShotStatus.MISSED;
+        for (Ship ship : shipsList) {
+            if (ship.isHitted(shotCoord)) {
+                res = ShotStatus.HIT;
+                myField[shotCoord.getY()][shotCoord.getX()] = hitShot;
+                if (ship.shipIsKilled()) {
+                    res = ShotStatus.HIT_SHIP_DESTROYED;
+                }
+                break;
+            }
+        }
+
+        if (res == ShotStatus.MISSED) {
+            myField[shotCoord.getY()][shotCoord.getX()] = missShot;
+        }
+
+        return res;
+    }
+
+    public boolean isAllShipsSank() {
+        boolean res = true;
+        for (Ship ship : shipsList) {
+            res = res && ship.shipIsKilled();
+        }
+        return res;
     }
 
     private boolean tryLocateShips(Ship.ShipCoord shipCoords) {
@@ -81,7 +126,7 @@ public class Field {
                 coord.setY(cur_Y + i);
             }
             if (isCellFree(coord)) {
-                field[coord.getY()][coord.getX()] = propablyShipPart;
+                myField[coord.getY()][coord.getX()] = propablyShipPart;
             } else {
                 success = false;
                 break;
@@ -96,12 +141,12 @@ public class Field {
                 coord.setY(cur_Y + i);
             }
             if (!success) {
-                if (field[coord.getY()][coord.getX()] == propablyShipPart) {
-                    field[coord.getY()][coord.getX()] = fogOfWar;
+                if (myField[coord.getY()][coord.getX()] == propablyShipPart) {
+                    myField[coord.getY()][coord.getX()] = fogOfWar;
                 }
             } else {
-                if (field[coord.getY()][coord.getX()] == propablyShipPart) {
-                    field[coord.getY()][coord.getX()] = shipPart;
+                if (myField[coord.getY()][coord.getX()] == propablyShipPart) {
+                    myField[coord.getY()][coord.getX()] = shipPart;
                 }
             }
         }
@@ -109,51 +154,50 @@ public class Field {
         return success;
     }
 
-    private boolean checkCoordFormat(String coord) {
-        String[] temp = coord.split("\\s+");
-        boolean res = false;
-        if (temp.length == 2) {
-            // check alpha column
-            boolean resAlpha = true;
-            boolean resDigit = true;
-            try {
-                for (int i = 0; i < temp.length; i++ ) {
-                    resAlpha = resAlpha && (temp[i].charAt(0) >= 'A' && temp[i].charAt(0) <= 'J');
-                    int num = Integer.parseInt(temp[0].substring(1));
-                    resDigit = resDigit && (num >= 1 && num <= sizeField);
-                }
-            } catch (NumberFormatException e) {
-                resDigit = false;
-            }
-            res = resAlpha && resDigit;
+    private boolean checkCoord(String coord) {
+        boolean res = true;
+        try {
+            res = res && (coord.charAt(0) >= 'A' && coord.charAt(0) <= 'J');
+            int num = Integer.parseInt(coord.substring(1));
+            res = res && (num >= 1 && num <= sizeField);
+
+        } catch (NumberFormatException e) {
+            res = false;
         }
         return res;
     }
 
+    private boolean checkShipCoords(String coord) {
+        String[] temp = coord.split("\\s+");
+        boolean res = false;
+        if (temp.length == 2) {
+            res = checkCoord(temp[0]) && checkCoord(temp[1]);            
+        }
+        return res;
+    }
+
+    private Coord convertStrToCoord(String coord) {
+        int y = coord.charAt(0) - 'A';
+        int x = Integer.parseInt(coord.substring(1)) - 1;
+        return new Coord(x, y);
+    }
+
     private Ship.ShipCoord convertStrToShipCoord(String coord) {
         String[] temp = coord.split("\\s+");
-        Coord head = new Coord();
-        Coord tail = new Coord();
-        Coord[] shipCoord = new Coord[]{head, tail};
-        for (int i = 0; i < 2; i++) {
-            int y = temp[i].charAt(0) - 'A';
-            int x = Integer.parseInt(temp[i].substring(1)) - 1;
-            shipCoord[i].setXY(x, y);
+        Coord head = convertStrToCoord(temp[0]);
+        Coord tail = convertStrToCoord(temp[1]);
+        if (tail.getX() < head.getX() ||
+            tail.getY() < head.getY()) {
+            Coord tempCoord = head;
+            head = tail;
+            tail = tempCoord;
         }
-
-
-        if (shipCoord[1].getY() < shipCoord[0].getY() ||
-            shipCoord[1].getX() < shipCoord[0].getX()) {
-            head = shipCoord[1];
-            tail = shipCoord[0];
-        }
-
         return new Ship.ShipCoord(head, tail);
     }
 
     private boolean isCoordInField(Coord coord) {
-        return coord.getX()>=0 && coord.getX() < sizeField &&
-               coord.getY()>=0 && coord.getY() < sizeField;
+        return coord.getX() >= 0 && coord.getX() < sizeField &&
+               coord.getY() >= 0 && coord.getY() < sizeField;
     }
 
     private boolean isCellFree(Coord coord) {
@@ -185,18 +229,24 @@ public class Field {
     private char getValFieldCell(Coord coord) {
         char val = '~'; //
         if (isCoordInField(coord)) {
-            val = field[coord.getY()][coord.getX()];
+            val = myField[coord.getY()][coord.getX()];
         }
         return val;
     }
 
     static public enum FieldErrCode {
         SUCCESS,
-        ERR_COORD_FORMAT,   // here all error if string name err and if col name err
-
+        ERR_COORD,   // here all error if string name err and if col name err
         ERR_WRONG_SHIP_LEN,
         ERR_WRONG_SHIP_LOCATION,
         ERR_SHIP_TOO_CLOSE,
         ERR_UNDEFINED;
+    }
+
+    static public enum ShotStatus {
+        MISSED,
+        HIT,
+        HIT_SHIP_DESTROYED,
+        WRONG_COORDINATE;
     }
 }

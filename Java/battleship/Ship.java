@@ -43,7 +43,38 @@ public class Ship {
     public void setShipCoord(ShipCoord coord) {
         shipCoord = coord;
     }
+
     public int getShipLen() {return shipType.getShipLen();}
+
+    public boolean isHitted(Coord coord) {
+        boolean res = false;
+
+        if (shipCoord.isHorizontalPlacement()) {
+            if (shipCoord.head.getY() == coord.getY()) {
+                if (coord.getX() >= shipCoord.head.getX() && coord.getX() <= shipCoord.tail.getX()) {
+                    res = true;
+                    int curInd = shipCoord.tail.getX() - coord.getX();
+                    shipBody[curInd] = DeadCell;
+                }
+            }
+        } else {
+            if (shipCoord.head.getX() == coord.getX()) {
+                if (coord.getY() >= shipCoord.head.getY() && coord.getY() <= shipCoord.tail.getY()) {
+                    res = true;
+                    int curInd = shipCoord.tail.getY() - coord.getY();
+                    shipBody[curInd] = DeadCell;
+                }
+            }
+        }
+
+        //check if ship is killed
+        boolean isDead = true;
+        for (int i = 0; i < getShipLen(); i++) {
+            isDead = isDead && (shipBody[i] == DeadCell);
+        }
+        killed = isDead;
+        return res;
+    }
     public boolean shipIsKilled() {return killed;}
     public ShipType getType() {
         return shipType;
