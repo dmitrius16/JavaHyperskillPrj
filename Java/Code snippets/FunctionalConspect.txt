@@ -1,0 +1,112 @@
+Let's imagine we have list of friends:
+    
+    List<String> friends = Arrays.asList("Brian", "Nate", "Neal", "Raju", "Sara", "Scott");
+
+I. Iterating through a list: (only functional style, imperative style not considered)
+
+    1)  anonymous class approach
+
+        friends.forEach(new Consumer<String>() {
+            public void accept(final String name) {
+                System.out.println(name);
+            }
+        });
+
+    2) lambda approach
+        
+        friends.forEach((final String name) -> System.out.println(name));
+        
+        Java compiler can infer type:
+
+        friends.forEach(name -> System.out.println(name)); //here compiler doesn't make name as final
+
+        and more short using method reference:
+
+        friends.forEach(System.out::println)
+
+II. Transforming a List: 
+    Create a new collection of uppercase names
+
+    friends.stream()
+           .map(name -> name.toUpperCase())
+           .forEach(name -> System.out.println(name + " "));
+
+    use Method reference:
+
+    friends.stream()
+           .map(String::toUpperCase)
+           .forEach(System.out::println);
+
+    Output: BRIAN NATE NEAL RAJU SARA SCOTT
+
+    Create a new collections of names length
+
+    friends.stream()
+           .map(name -> name.length())
+           .forEach(count -> System.out.println(count + " "))
+
+III. Finding Elements
+    Find names that start with ... for example 'N'
+
+    final List<String> startWithN = 
+        friends.stream()
+               .filter(name -> name.startWith("N"))
+               .collect(Collectors.toList());
+
+    More flex solution if we want search not only "N" symbol:
+
+    public static Predicate<String> checkIfStartWith(final String letter) {
+        return name -> name.startWith(letter);
+    }
+
+    final long countFriendStartN = 
+        friends.stream()
+               .filter(checkIfStartWith("N")).count();
+
+    final long countFriendStartB = 
+        friends.stream()
+               .filter(checkIfStartWith("B")).count();
+
+    So far we use "public static" for checkIfStartWith but it's not good
+    idea. We have to narrow the function's scope to where it's needed.
+    We can do that using a Function interface.
+
+    final Function<String, Predicate<String>> startWithLetter = 
+        (String letter) -> {
+            Predicate<String> checkStarts = (String name) -> name.startWith(letter);
+            return checkStarts;
+        };
+    
+    Or more shorter:
+    final Function<String, Predicate<String>> startWithLetter = 
+        (String letter) -> (String name) -> startWith(letter);
+
+    even more shorter:
+    final Function<String, Predicate<String>> startWithLetter = 
+        letter->name->name.startWith(letter); 
+
+
+    using predicate:
+
+    final long countFriendsStartN = 
+        friends.stream()
+               .filter(startWithLetter("N")).count();
+
+    final long countFriendsStartB = 
+        friends.stream()
+               .filter(startWithLetter("B")).count();
+
+IV. Picking element:
+    public static pickName(final List<String> names, final String startingLetter) {
+        final Optional<String> foundNames = 
+            names.stream()
+                 .filter(name -> name.startWith(startingLetter))
+                 .findFirst();
+
+        System.out.println(String.format("A name starting with %s: %s),
+            startingLetter, foundNames.orElse("No name found"));
+    }
+
+    we can ask Optional to run block of code:
+    foundName.ifPresent(name -> System.out.printLn("Hello " + name));
+    
