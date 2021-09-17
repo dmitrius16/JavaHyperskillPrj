@@ -109,4 +109,87 @@ IV. Picking element:
 
     we can ask Optional to run block of code:
     foundName.ifPresent(name -> System.out.printLn("Hello " + name));
+
+V. Reducing a Collection to a Single Value
+
+    Let's read over the values in the frinds collection of names and determine the total
+    number of characters:
+
+        System.out.println("Total number of characters in all names: " + 
+            friends.stream()
+                   .mapToInt(name -> name.length())
+                   .sum());
+
+        Output: Total number of characters in all names: 26
+
+    method sum() being the special case of the more general reduce operation.
+
+    reduce() is used to compare two elements against each other and pass along the result
+    for further comparison with the remaining elements in the collection. 
+    
+    Example find longest name:
+        
+        final Optional<String> aLongName = 
+            friends.stream()
+                   .reduce((name1, name2) ->
+                        name1.length() >= name2.length() ? name1: name2);
+        aLingName.ifPresent(name ->
+            System.out.println(String.format("A longest name: %s", name)));
+
+        Output: A longest name: Brian.
+
+    reduce() - takes two parameters, name1 and name2 and returns one of them based on the length.
+
+    we can pass to reduce default value, example:
+    final String steveOrLonger =
+        friends.stream()
+               .reduce("Steve", (name1, name2) -> 
+                    name.length() >= name2.length() ? name1 : name2);
+    
+    if any name was longer than given base, it would get picked up, otherwise the function would return
+    the base value.
+
+VI Joining elements:
+    Bad approach
+    for(String name : friends) {
+        System.out.print(name + ", ");
+    }
+    System.println();
+    
+    Output:
+    Brian, Nate, Neal, Raju, Sara, Scott,
+
+    for fix comma problem at the end of output we can write:
+
+    for(int i = 0; i < friends.size() - 1; i++) {
+        System.out.println(friends[i]);
+    }
+    if (frinds.size() > 0) {
+        System.out.println(friends.get(friends.size() - 1));
+    }
+
+    Output:
+    Brian, Nate, Neal, Raju, Sara, Scott
+
+    Correct approach:
+    ------------------------------------------------
+    System.out.println(String.join(", ", friends));
+    ------------------------------------------------
+
+    We could also use the reduce() method for concatenate elements into a string,
+    but that would require some extra effort on our part. There is collect method, which is another 
+    form of reduce that can help us collect values into a target destination.
+
+    System.out.println(
+        friends.stream()
+               .map(String::toUpperCase)
+               .collect(joining(", ")));
+    
+    Output:
+        BRIAN, NATE, NEAL, RAJU, SARA, SCOTT
+        
+
+
+
+
     
