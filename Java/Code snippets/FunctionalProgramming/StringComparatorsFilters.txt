@@ -1,0 +1,102 @@
+I. Iterating a String
+
+    final String str = "w00t";
+
+    str.chars()
+       .forEach(ch -> System.out.println(ch));
+
+    or more concise:
+
+    str.chars()
+       .forEach(System.out::println);
+
+    Here output is digit!!!
+
+    output:
+
+    119
+    48
+    48
+    116
+
+    if we want output characters we have to make casting
+
+    public class IterateString {
+        private static void printChar(int aChar) {
+            System.out.println((char)aChar);
+        }
+        public static void main(String[] args) {
+            final String str = "w00t";
+
+            str.chars()
+               .forEach(IterateString::printChar);
+        }
+    }
+
+    Or if we want to process characters and not int from the start:
+
+    str.chars()
+       .mapToObj(ch -> Characters.valueOf(ch))
+       .forEach(System.out::println);
+
+    Filter sequence
+
+    str.chars()
+       .filter(Character::isDigit)
+       .forEach(IterateString::printChar);
+
+II. Implementing the ComparatorInterface
+
+    public class Person {
+        private final String name;
+        private final int age;
+
+        public Person(final String theName, final int theAge) {
+            name = theName;
+            age = theAge;
+        }
+        public String getName() {reuturn name;}
+        public int getAge() {return age;}
+
+        public int ageDifference(final Person other) {
+            return age - other.age;
+        }
+
+        public String toString() {
+            return String.format("%s - %d", name, age);
+        }
+    }
+
+    Create list of person:
+
+    final List<Person> people = Arrays.asList(
+        new Person("John", 20),
+        new Person("Sara", 21),
+        new Person("Jane", 21),
+        new Person("Greg", 25),
+    )
+
+
+    Sort the people in the list in ascending order by age
+
+    List<Person> ascendingAge = 
+        people.stream()
+              .sorted((person1, person2) -> person1.ageDifference(person2))
+              .collect(toList());
+
+    Here we can reduce code to:
+
+        people.stream()
+              .sorted(Person::ageDifference)
+
+    Here compiler take two parameters and make first one ageDifference method and second the parameter.
+
+    For reverse sorting we can make following:
+
+        people.stream()
+              .sorted((person1, person2) -> person2.ageDifference(person1))
+              .collect(toList());
+
+        but here we can't use function reference !!! see page 63
+
+        
