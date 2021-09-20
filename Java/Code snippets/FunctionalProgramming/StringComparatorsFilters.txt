@@ -99,4 +99,32 @@ II. Implementing the ComparatorInterface
 
         but here we can't use function reference !!! see page 63
 
+    Using comparator:
+
+        Comparator<Person> compareAscending = 
+            (person1, person2) -> person1.ageDifference(person2);
+
+        Compare<Person> compareDescending = compareAscending.reversed();
+
+        printPeople("Sorted in ascending order by age: ", 
+            people.stream()
+                .sorted(compareAscending)
+                .collect(toList()));
+
+        printPeople("Sotrted in descending order by age: ",
+            people.stream()
+                .sorted(compareDescending)
+                .collect(toList()));
+
+    Pick up min and max elements:
+
+        people.stream()
+            .max(Person::ageDifference)     // here we can place min with Comparator interface.
+            .ifPresent(eldest -> System.out.println("Eldest: " + eldest));
+
+    
+
+    
+
+    
         
