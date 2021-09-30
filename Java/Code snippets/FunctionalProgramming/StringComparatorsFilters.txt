@@ -73,7 +73,7 @@ II. Implementing the ComparatorInterface
         new Person("John", 20),
         new Person("Sara", 21),
         new Person("Jane", 21),
-        new Person("Greg", 25),
+        new Person("Greg", 35),
     )
 
 
@@ -121,10 +121,111 @@ II. Implementing the ComparatorInterface
         people.stream()
             .max(Person::ageDifference)     // here we can place min with Comparator interface.
             .ifPresent(eldest -> System.out.println("Eldest: " + eldest));
-
+            
+III. Mutltiple and Fluent Comparison
+        
+    First approach:
+        people.stream()
+              .sorted((person1, person2) -> person1.getName().compareTo(person2.getName()));
+              
+    But we can do better tahnks to convenience usint them.
     
+        final Function<Person, String> byName = person -> person.getName();
+        people.stream()
+              .sorted(comparing(byName))
 
+    We can take this fluency further to make multiple comparisons.
+    Here we sort people in ascending order by both age and name:
     
+        final Function<Person, Integer> byAge = person -> person.getAge();
+        final Function<Person, String> byTheirName = person -> person.getName();
+        
+        List<Person> people = people.stream()
+                                    .sorted(comparing(byAge).thenComparing(byTheirName))
+                                    .collect(toList()));
+                                    
+    
+IV. Using the collect Method and the Collectors Class.
+    
+    Here version that uses mutability and forEach()
+    
+        List<Person> olderThan20 = new ArrayList<>();
+        people.stream()
+              .filter(person -> person.getAge() > 20)
+              .forEach(person -> olderThan20.add(person));
+        
+        System.out.println("People older than 20: " + olderThan20)
+        
+        Output:
+        People older than 20: [Sara - 21, Jane - 21, Greg - 35]
+        
+    There are a few issues. First, the operation of adding an element into the target collection
+    is pretty low level - imperative rather declarative. If we decide to make the iteration concurent, 
+    we immediately have to deal with thread-safety concerns.
+    
+    The collect() method takes a stream of elements and collects or gathers them into a result container.
+    To do that, the method needs to know three things:
+        
+        * How to make a result container(for example, using the ArrayList::new method)
+        
+        * How to add a single element to a result container (for example, using the ArrayList::add method)
+        
+        * How to merge one result to a result container (for example, using ArrayList::addAll method)
+        
+            List<Person> olderThan20 = 
+                people.stream()
+                      .filter(person -> person.getAge() > 20)
+                      .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+            System.out.println("People older than 20: " + olderThan20);
+            
+    Another variant that uses Collectors.toList()
+        
+            List<Person> olderThan20 = 
+                people.stream()
+                      .filter(person->person.getAge() > 20)
+                      .collect(Collectors.toList());
+                      
+    There are several methods on the Collectors to perform various collect or accumulate operations.
+    For example: toList(), toSet(), toMap(). We can also join multiple combine operations using methods like:
+    mapping(), collectingAndThen(), minBy(), maxBy(), and groupingBy().
+        
+        Example with groupingBy:
+            
+            Map<Integer, List<Person>> peopleByAge = 
+                people.stream()
+                      .collect(Collectors.groupingBy(Person::getAge));
+            System.out.println("Groped by age: " + peopleByAge);
+            
+        Output:
+            Grouped by age: {35-[Greg - 35], 20=[John - 20], 21=[Sara - 21, Jane - 21]}
+                      
+
+    Continuing with the previous example, instead of creating a map of all Person objects by age,
+    let's get only people's name, ordered by age.
+        
+            Map<Integer, List<String>> nameOfPeopleByAge = 
+                people.stream()
+                      .collect(groupingBy(Person::getAge, mapping(Person::getName, toList())));
+            System.out.println("People grouped by age: " + nameOfPeopleByAge);
+            
+        Output:
+            People grouped by age: {35=[Greg], 20=[John], 21=[Sara, Jane]}
+            
+    Let's look at one more combination: let's group the names by their first character and then 
+    get the oldest person in each group
+    
+            Comparator<Person> byAge = Comparator.comparing(Person::getAge)
+            Map<Character, Oprional<Person>> oldestPersonOfEachLetter = 
+                people.stream()
+                      .collect(groupingBy(person -> person.getName().charAt(0),
+                           reducing(BinaryOperator.maxBy(byAge))));
+                           
+            System.out.println("Oldest person of each letter:");
+            System.out.println(oldestPersonOfEachLetter);
+        
+        Output:
+        Oldest person of each letter:
+        {S=Optional[Sara - 21], G=Optional[Greg - 35], J=Optional[Jane - 21]}
 
     
         

@@ -79,7 +79,7 @@ III. Finding Elements
     
     Or more shorter:
     final Function<String, Predicate<String>> startWithLetter = 
-        (String letter) -> (String name) -> startWith(letter);
+        (String letter) -> (String name) -> name.startWith(letter);
 
     even more shorter:
     final Function<String, Predicate<String>> startWithLetter = 
@@ -144,7 +144,7 @@ V. Reducing a Collection to a Single Value
     final String steveOrLonger =
         friends.stream()
                .reduce("Steve", (name1, name2) -> 
-                    name.length() >= name2.length() ? name1 : name2);
+                    name1.length() >= name2.length() ? name1 : name2);
     
     if any name was longer than given base, it would get picked up, otherwise the function would return
     the base value.
