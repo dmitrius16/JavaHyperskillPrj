@@ -1,0 +1,43 @@
+I. Here's the code to list all the names of all the files in the current directory:
+
+        Files.list(Path.get("."))
+             .foreach(System.out::println);
+
+    Files.list return CloseableStream
+
+    If we want only the subdirectories in the current directory instead of a listing of all the files, we
+    can use the filter() method:
+
+        Files.list(Path.get("."))
+            .filter(Files::isDirectory)
+            .forEach(System.out::println);
+
+II. Listing select files in a directory
+    Habitual way:
+        final String[] files = 
+            new File("fpij").list(new java.io.FileNameFilter() {
+                public boolean accept(final File dir, final String name) {
+                    return name.endsWith(".java")
+                }
+            });
+
+    Let's use Lambda expression and DirectoryStream approach:
+
+        Files.newDirectoryStream(Path.get("fpij"), path -> path.toString().endWith(".java"))
+        .forEach(System.out::println);    
+
+    Output could be something like that:
+    fpij/Compare.java
+    fpij/IteratingString.java
+    fpij/ListDirs.java
+
+    Picked files based on filename properties:
+
+        final File[] files = new File(".").listFiles(file -> file.isHidden())
+
+        or even shorter than:
+
+        final File[] files = new File(".").listFiles(File::isHidden)
+
+    //here we need add some information...
+
